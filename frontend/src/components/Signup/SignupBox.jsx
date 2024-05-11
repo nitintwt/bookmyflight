@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 
 export default function SignupBox() {
   return (
-    <div className="flex min-h-[100dvh] items-center justify-center bg-gray-100 px-4 py-12 dark:bg-gray-950">
+    <div className="flex min-h-[100dvh] items-center justify-center bg-gray-950 px-4 py-12 ">
       <div className="mx-auto w-full max-w-md space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-50">
@@ -26,7 +26,7 @@ export default function SignupBox() {
             <div className="mt-1">
               <input
                 autoComplete="name"
-                className="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-50 dark:placeholder-gray-500"
+                className="block w-full appearance-none rounded-md border text-white border-gray-700 px-3 py-2 placeholder-gray-500 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500  bg-gray-950 "
                 id="name"
                 name="name"
                 required
@@ -41,7 +41,7 @@ export default function SignupBox() {
             <div className="mt-1">
               <input
                 autoComplete="email"
-                className="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-50 dark:placeholder-gray-500"
+                className="block w-full appearance-none rounded-md border text-white border-gray-700 px-3 py-2 placeholder-gray-500 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500  bg-gray-950 "
                 id="email"
                 name="email"
                 required
@@ -56,7 +56,7 @@ export default function SignupBox() {
             <div className="mt-1">
               <input
                 autoComplete="current-password"
-                className="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-50 dark:placeholder-gray-500"
+                className="block w-full appearance-none rounded-md border text-white border-gray-700 px-3 py-2 placeholder-gray-500 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500  bg-gray-950 "
                 id="password"
                 name="password"
                 required
