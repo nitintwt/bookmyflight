@@ -43,4 +43,31 @@ const registerUser = asyncHandler( async (req , res)=>{
   )
 })
 
-export {registerUser}
+const loginUser = asyncHandler(async(req , res)=>{
+
+  const {email , password} = req.body
+
+  if([email , password].some((field)=> field.trim()==="")){
+    throw new ApiError(400 , "All fields are required")
+  }
+
+  if (!email.endsWith('@gmail.com')){
+    throw new ApiError(408 , "Enter a valid Email")
+  }
+
+  const oldUser = await User.findOne({email})
+
+  if(!oldUser){
+    throw new ApiError(404 , "User does not exist")
+  }
+
+  const isPasswordValid = await oldUser.isPasswordCorrect(password)
+
+  if(!isPasswordValid){
+    throw new ApiError(401 , "Passoword incorrect")
+  }
+
+  return res.status(200).json(new ApiResponse(200 , oldUser , "User logged in successfully"))
+})
+
+export {registerUser , loginUser}

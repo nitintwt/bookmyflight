@@ -1,6 +1,25 @@
+import { useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { Toaster, toast } from "sonner"
+import axios from 'axios'
 
 
 export default function LoginBox() {
+  const [email , setEmail]= useState('')
+  const [password , setPassword]= useState('')
+  const navigate = useNavigate()
+
+  const handleSubmit= async ()=>{
+    try {
+      const loginnedUser = await axios.post('/api/v1/users/login' , {email: email , password: password})
+      toast.success(`${loginnedUser?.data?.message}`)
+      setTimeout(()=> navigate('/') , 2000)
+    } catch (error) {
+      console.log(error)
+      toast.warning(`${error?.response?.data?.message}`)
+    }
+  }
+
   return (
     <div className="flex min-h-[100dvh]  justify-center bg-gray-950 px-4 py-12 ">
       <div className="mx-auto w-full max-w-md space-y-8">
@@ -12,7 +31,6 @@ export default function LoginBox() {
           Enter your email and password to sign in to your account.
           </p>
         </div>
-        <form action="#" className="space-y-6" method="POST">
           <div>
             <h2 className="block text-sm font-medium text-gray-300 " htmlFor="email">
               Email address
@@ -25,6 +43,8 @@ export default function LoginBox() {
                 name="email"
                 required
                 type="email"
+                value={email}
+                onChange={(e)=> setEmail(e.target.value)}
               />
             </div>
           </div>
@@ -40,6 +60,8 @@ export default function LoginBox() {
                 name="password"
                 required
                 type="password"
+                value={password}
+                onChange={(e)=> setPassword(e.target.value)}
               />
             </div>
           </div>
@@ -47,12 +69,13 @@ export default function LoginBox() {
             <button
               className="flex w-full justify-center rounded-md bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:bg-indigo-500 dark:hover:bg-indigo-400 dark:focus:ring-indigo-400"
               type="submit"
+              onClick={handleSubmit}
             >
               Sign up
             </button>
           </div>
-        </form>
       </div>
+      <Toaster position='bottom-center'/>
     </div>
   )
 }
