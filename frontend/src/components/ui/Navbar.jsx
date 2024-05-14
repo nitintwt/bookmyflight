@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link, NavLink } from 'react-router-dom'
 
 function Navbar() {
   return (
@@ -7,7 +7,12 @@ function Navbar() {
     <Link className="text-lg font-bold text-white" to="/">
       Bookmyflight
     </Link>
-    <Link to="/signup"  className='text-white'>Login</Link>
+    <NavLink to="/signup"  
+    style={({ isActive }) => {
+    return isActive ? { color: "black" } : {};}}
+    className='text-white'>
+      Login
+    </NavLink>
   </header>
   )
 }

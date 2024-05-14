@@ -1,6 +1,26 @@
-import { Link } from 'react-router-dom'
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import axios from 'axios'
+import { Toaster, toast } from 'sonner'
 
 export default function SignupBox() {
+  const [name , setName] = useState('')
+  const [email , setEmail] = useState('')
+  const [password , setPassword]= useState('')
+  const [register , setRegister] = useState(false)
+  const navigate = useNavigate()
+
+  const handleSubmit = async ()=>{
+    try {
+      const registeredUser = await axios.post('/api/v1/users/register' ,{name: name , email: email , password: password})
+      toast.success(`${registeredUser?.data?.message}`)
+      setTimeout(()=> navigate('/') , 2000)
+    } catch (error) {
+      toast.warning(`${error?.response?.data?.message}`)
+    }
+  }
+
+
   return (
     <div className="flex min-h-[100dvh] items-center justify-center bg-gray-950 px-4 py-12 ">
       <div className="mx-auto w-full max-w-md space-y-8">
@@ -18,7 +38,7 @@ export default function SignupBox() {
             </Link>
           </p>
         </div>
-        <form action="#" className="space-y-6" method="POST">
+        
           <div>
             <h2 className="block text-sm font-medium text-gray-700 dark:text-gray-300" htmlFor="name">
               Name
@@ -31,6 +51,8 @@ export default function SignupBox() {
                 name="name"
                 required
                 type="text"
+                value={name}
+                onChange={(e)=> setName(e.target.value)}
               />
             </div>
           </div>
@@ -46,6 +68,8 @@ export default function SignupBox() {
                 name="email"
                 required
                 type="email"
+                value={email}
+                onChange={(e)=> setEmail(e.target.value)}
               />
             </div>
           </div>
@@ -61,19 +85,22 @@ export default function SignupBox() {
                 name="password"
                 required
                 type="password"
+                value={password}
+                onChange={(e)=> setPassword(e.target.value)}
               />
             </div>
           </div>
           <div>
             <button
               className="flex w-full justify-center rounded-md bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:bg-indigo-500 dark:hover:bg-indigo-400 dark:focus:ring-indigo-400"
-              type="submit"
+              
+              onClick={handleSubmit}
             >
               Sign up
             </button>
           </div>
-        </form>
       </div>
+      <Toaster position='bottom-center'/>
     </div>
   )
 }

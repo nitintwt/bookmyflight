@@ -12,6 +12,7 @@
   "dependencies": {
     "@radix-ui/react-label": "^2.0.2",
     "@tabler/icons-react": "^3.3.0",
+    "axios": "^1.6.8",
     "clsx": "^2.1.1",
     "framer-motion": "^11.1.9",
     "react": "^18.2.0",
