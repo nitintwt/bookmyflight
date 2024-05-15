@@ -3,6 +3,22 @@ import { ApiError } from '../utils/ApiError.js'
 import { ApiResponse } from '../utils/ApiResponse.js'
 import {asyncHandler} from '../utils/asyncHandler.js'
 
+const generateAccessAndRefreshToken = async (userId)=>{
+  try {
+    const user = await User.findById(userId)
+    const accessToken = await user.generateAccessToken()
+    const refreshToken = await user.generateRefreshToken()
+    
+    // save refresh token into db
+    user.refreshToken = refreshToken
+    await user.save({validateBeforeSave:false})
+
+    return {accessToken , refreshToken}
+  } catch (error) {
+    throw new ApiError(500 , "Something went wrong while generating Access and Refresh Token")
+  }
+}
+
 const registerUser = asyncHandler( async (req , res)=>{
 
   const {name , email , password} = req.body
@@ -67,7 +83,20 @@ const loginUser = asyncHandler(async(req , res)=>{
     throw new ApiError(401 , "Passoword incorrect")
   }
 
-  return res.status(200).json(new ApiResponse(200 , oldUser , "User logged in successfully"))
+  const {accessToken , refreshToken} = await generateAccessAndRefreshToken(oldUser._id)
+
+  const loggedUser = await User.findById(oldUser._id).select("-password -refreshToken")
+  
+  const options = {
+    httpOnly : true,
+    secure: true,
+  }
+
+  return res
+  .status(200)
+  .cookie("accessToken" , accessToken , options)
+  .cookie("refreshToken" , refreshToken , options)
+  .json(new ApiResponse(200 , {user: loggedUser , accessToken , refreshToken} , "User logged in successfully"))
 })
 
 export {registerUser , loginUser}
