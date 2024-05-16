@@ -10,11 +10,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@nextui-org/navbar": "^2.0.30",
+    "@nextui-org/react": "^2.3.6",
     "@radix-ui/react-label": "^2.0.2",
     "@tabler/icons-react": "^3.3.0",
     "axios": "^1.6.8",
     "clsx": "^2.1.1",
-    "framer-motion": "^11.1.9",
+    "framer-motion": "^11.2.2",
     "js-cookie": "^3.0.5",
     "react": "^18.2.0",
     "react-cookie": "^7.1.4",

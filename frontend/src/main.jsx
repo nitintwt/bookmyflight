@@ -7,6 +7,8 @@ import Layout from './Layout.jsx'
 import Home from './pages/Home.jsx'
 import Login from './pages/Login.jsx'
 import Signup from './pages/Signup.jsx'
+import { NextUIProvider } from '@nextui-org/react'
+import UserContextProvider from './context/UserContextProvider.jsx'
 
 const router = createBrowserRouter([
   {
@@ -31,6 +33,10 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <RouterProvider router={router}/>
+    <UserContextProvider>
+      <NextUIProvider>
+       <RouterProvider router={router}/>
+      </NextUIProvider>
+    </UserContextProvider>
   </React.StrictMode>,
 )

@@ -1,22 +1,18 @@
-import { useState , useEffect } from "react"
+import { useState , useEffect, useContext } from "react"
 import { useNavigate } from "react-router-dom"
 import { Toaster, toast } from "sonner"
 import axios from 'axios'
-
-
 
 export default function LoginBox() {
   const [email , setEmail]= useState('')
   const [password , setPassword]= useState('')
   const navigate = useNavigate()
 
-
   const handleSubmit= async ()=>{
     try {
       const loginnedUser = await axios.post('/api/v1/users/login' , {email: email , password: password})
       toast.success(`${loginnedUser?.data?.message}`)
       setTimeout(()=> navigate('/') , 2000)
-      console.log(loginnedUser)
     } catch (error) {
       console.log(error)
       toast.warning(`${error?.response?.data?.message}`)
