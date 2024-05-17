@@ -28,7 +28,7 @@ function Navbar() {
   ) : (<NavLink to="/signup"  
     style={({ isActive }) => {
     return isActive ? { color: "black" } : {};}}
-    className='text-white'>
+    className='text-white font-bold'>
       Login
     </NavLink>)}
   </header>
