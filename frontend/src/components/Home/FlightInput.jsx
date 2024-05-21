@@ -12,7 +12,7 @@ function FlightInput() {
   const [oneWayDate, setOneWayDate] = useState(null);
   const [returnDate, setReturnDate] = useState(null);
 
-  console.log(trip);
+  
 
   return (
     <div className='flex flex-col  p-5 bg-white m-5 border rounded-3xl '>
