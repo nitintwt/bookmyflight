@@ -7,6 +7,7 @@ import axios from 'axios';
 import UserContext from '../../context/UserContext';
 import GenerateAccessToken from '../../utils/GenerateAccessToken';
 import FlightCard from './FlightCard';
+import AirportResultLists from './AirportResultLists';
 
 function FlightInput() {
   const [to, setTo] = useState('');
@@ -16,22 +17,54 @@ function FlightInput() {
   const [oneWayDate, setOneWayDate] = useState(null);
   const [returnDate, setReturnDate] = useState(null);
   const [flights , setFlights]= useState([])
+  const [airportData , setAirportData]= useState([])
+  const [departureAirport , setDepartureAirport]= useState('')
+  const [arrivalAirport , setArrivalAirport]= useState('')
 
   const {accessToken , setAccessToken}= useContext(UserContext)
+
+  const handleFromInputSearch = async (value)=>{
+    setFrom(value)
+    const headers = {'Authorization' :`Bearer ${accessToken}`}
+    const params = {'subType':'CITY,AIRPORT' , 'keyword':`${value}`}
+    try {
+      const airportData = await axios.get('https://test.api.amadeus.com/v1/reference-data/locations', {headers , params})
+      setAirportData(airportData?.data?.data)
+      setDepartureAirport(airportData?.data?.data[0]?.iataCode)
+      //console.log(airportData?.data?.data[0]?.iataCode)
+    } catch (error) {
+      console.log('Error fetching airport data' , error)
+    } 
+  }
+  const handleToInputSearch = async (value)=>{
+    setTo(value)
+    const headers = {'Authorization' :`Bearer ${accessToken}`}
+    const params = {'subType':'CITY,AIRPORT' , 'keyword':`${value}`}
+    try {
+      const airportData = await axios.get('https://test.api.amadeus.com/v1/reference-data/locations', {headers , params})
+      setAirportData(airportData?.data?.data)
+      setArrivalAirport(airportData?.data?.data[0]?.iataCode)
+      //console.log(airportData?.data?.data[0]?.iataCode)
+    } catch (error) {
+      console.log('Error fetching airport data' , error)
+    } 
+  }
 
   const handleSearch = ()=>{
     const fetchFlightDetails = async()=>{
       const params = {
-        originLocationCode : "DEL",
-        destinationLocationCode : "BOM",
+        currencyCode: "INR",
+        originLocationCode : `${departureAirport}`,
+        destinationLocationCode : `${arrivalAirport}`,
         departureDate : '2024-06-06',
-        adults: '2',
-        max: '5',
+        adults: `${numberPassengers}`,
+        max: '10',
+        
       }
       const headers = {'Authorization' :`Bearer ${accessToken}`}
       try {
         const data = await axios.get('https://test.api.amadeus.com/v2/shopping/flight-offers', {params , headers})
-        console.log(data)
+       // console.log(data)
         //console.log(data?.data?.data)
         setFlights(data?.data?.data)
       } catch (error) {
@@ -45,7 +78,7 @@ function FlightInput() {
     fetchFlightDetails()
   }
 
-  console.log(flights[0])
+  //console.log(flights[0])
 
   return (
     <Fragment>
@@ -66,8 +99,9 @@ function FlightInput() {
           </Select>
         </div>
         <div className="flex w-full flex-wrap md:flex-nowrap gap-4  mt-5">
-          <Input type="text" label="From" variant='bordered' value={from} onChange={(e) => setFrom(e.target.value)} />
-          <Input type="text" label="To" variant='bordered' value={to} onChange={(e) => setTo(e.target.value)} />
+          <Input type="text" label="From" variant='bordered' value={from} onChange={(e) => handleFromInputSearch(e.target.value)} />
+          
+          <Input type="text" label="To" variant='bordered' value={to} onChange={(e) => handleToInputSearch(e.target.value)} />
           <DatePicker label="Departure Date" variant='bordered' className="max-w-[284px]" value={oneWayDate} onChange={setOneWayDate} />
           {trip === 'round-trip' && (
             <DatePicker label="Return Date" variant='bordered' className="max-w-[284px]" value={returnDate} onChange={setReturnDate} />
@@ -78,10 +112,23 @@ function FlightInput() {
         </div>
       </div>
       <div className='p-2'>
-        { flights >0 ? (
-          flights.map((flight)=>{
-            <FlightCard airLine={flight?.validatingAirlineCodes[0]} price={flight?.price?.base} from={flight?.itineraries[0]?.segments[0]?.departure?.iataCode} fromTime={flight?.itineraries[0]?.segments[0]?.departure?.at} to={flight?.itineraries[0]?.segments[0]?.arrival?.iataCode} toTime={flight?.itineraries[0]?.segments[0]?.arrival?.at} numberStops={flight?.itineraries[0]?.segments[0]?.numberOfStops} totalTravelTime={flight?.itineraries[0]?.segments[0]?.duration} />
-          })
+        { flights.length >0 ? (
+          flights.map((flight)=>(
+            <FlightCard 
+            key={flight?.id} 
+            airLine={flight?.validatingAirlineCodes[0]} 
+            price={flight?.price?.total} 
+            from={flight?.itineraries[0]?.segments[0]?.departure?.iataCode} 
+            fromTime={flight?.itineraries[0]?.segments[0]?.departure?.at} 
+            to={flight?.itineraries[0]?.segments[0]?.arrival?.iataCode} 
+            toTime={flight?.itineraries[0]?.segments[0]?.arrival?.at} 
+            numberStops={flight?.itineraries[0]?.segments?.length} 
+            totalTravelTime={flight?.itineraries[0]?.duration} 
+            stopOneDeparture={flight?.itineraries[0]?.segments[0]?.departure?.iataCode} 
+            stopOneArrival={flight?.itineraries[0]?.segments[0]?.arrival?.iataCode} 
+            stopTwoDeparture={flight?.itineraries[0]?.segments[1]?.departure?.iataCode} 
+            stopTwoArrival={flight?.itineraries[0]?.segments[1]?.arrival?.iataCode}/>
+          ))
         ):('')}
       </div>
     </Fragment>
