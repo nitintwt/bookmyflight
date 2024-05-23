@@ -1,6 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState , useContext , useEffect } from 'react';
+import axios from 'axios';
+import UserContext from '../../context/UserContext';
 
-const FlightCard = ({airLine , price , from , fromTime , to , toTime , totalTravelTime , numberStops , stopOneDeparture , stopOneArrival , stopTwoDeparture , stopTwoArrival}) => {
+const FlightCard = ({airLine , price , from , fromTime , to , toTime , totalTravelTime , numberStops , stopOneDeparture , stopOneArrival , stopTwoDeparture , stopTwoArrival , stopThreeDeparture , stopThreeArrival}) => {
+  const {accessToken , setAccessToken}= useContext(UserContext)
+  const [airlineName, setAirlineName] = useState(null);
+  
 
   const formatTotalTravelDuration = (duration) => {
     // Match the duration string against the regular expression pattern
@@ -29,12 +34,27 @@ const FlightCard = ({airLine , price , from , fromTime , to , toTime , totalTrav
     return `${hours}:${minutes}`.trim()
   }
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const headers = { 'Authorization': `Bearer ${accessToken}` };
+        const params = { 'airlineCodes': `${airLine}` };
+        const response = await axios.get('https://test.api.amadeus.com/v1/reference-data/airlines?airlineCodes', { params, headers });
+        setAirlineName(response?.data?.data[0]?.businessName);
+      } catch (error) {
+        console.log("error fetching airlines name ", error);
+      }
+    };
+
+    fetchData();
+  }, [airLine]);
+
 
   return (
     <div className="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl mt-8 p-6 ">
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div className="flex items-center">
-          <div className="ml-3 text-lg font-semibold text-gray-900">{airLine}</div>
+          <div className="ml-3 text-lg font-semibold text-gray-900">{airlineName}</div>
         </div>
         <div className="flex justify-end items-center text-xl font-bold text-gray-900">₹{price}</div>
       </div>
@@ -49,6 +69,7 @@ const FlightCard = ({airLine , price , from , fromTime , to , toTime , totalTrav
           <div className="text-sm text-gray-500 text-right">
            <div>{stopOneDeparture} → {stopOneArrival}</div>
            {stopTwoDeparture ? (<div>{stopTwoDeparture} → {stopTwoArrival}</div>):('')}
+           {stopThreeDeparture ? (<div>{stopThreeDeparture} → {stopThreeArrival}</div>):('')}
           </div>
         </div>
         <div className="flex flex-col items-end">

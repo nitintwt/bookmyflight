@@ -14,7 +14,7 @@ function FlightInput() {
   const [from, setFrom] = useState('');
   const [numberPassengers, setNumberOfPassengers] = useState(1);
   const [trip, setTrip] = useState('one-way');
-  const [oneWayDate, setOneWayDate] = useState(null);
+  const [departureDate, setDepartureDate] = useState(null);
   const [returnDate, setReturnDate] = useState(null);
   const [flights , setFlights]= useState([])
   const [airportData , setAirportData]= useState([])
@@ -22,6 +22,20 @@ function FlightInput() {
   const [arrivalAirport , setArrivalAirport]= useState('')
 
   const {accessToken , setAccessToken}= useContext(UserContext)
+
+  const formatDate = (date) => {
+    const year = date?.year
+    const month = date?.month < 10 ? `0${date?.month}` : date?.month
+    const day = date?.day < 10 ? `0${date?.day}` : date?.day
+  
+    return `${year}-${month}-${day}`
+  }
+  
+
+
+  
+  
+  
 
   const handleFromInputSearch = async (value)=>{
     setFrom(value)
@@ -31,11 +45,12 @@ function FlightInput() {
       const airportData = await axios.get('https://test.api.amadeus.com/v1/reference-data/locations', {headers , params})
       setAirportData(airportData?.data?.data)
       setDepartureAirport(airportData?.data?.data[0]?.iataCode)
-      //console.log(airportData?.data?.data[0]?.iataCode)
+      console.log(airportData?.data?.data[0]?.iataCode)
     } catch (error) {
       console.log('Error fetching airport data' , error)
     } 
   }
+
   const handleToInputSearch = async (value)=>{
     setTo(value)
     const headers = {'Authorization' :`Bearer ${accessToken}`}
@@ -56,7 +71,7 @@ function FlightInput() {
         currencyCode: "INR",
         originLocationCode : `${departureAirport}`,
         destinationLocationCode : `${arrivalAirport}`,
-        departureDate : '2024-06-06',
+        departureDate : `${formatDate(departureDate)}`,
         adults: `${numberPassengers}`,
         max: '10',
         
@@ -64,7 +79,7 @@ function FlightInput() {
       const headers = {'Authorization' :`Bearer ${accessToken}`}
       try {
         const data = await axios.get('https://test.api.amadeus.com/v2/shopping/flight-offers', {params , headers})
-       // console.log(data)
+        console.log(data)
         //console.log(data?.data?.data)
         setFlights(data?.data?.data)
       } catch (error) {
@@ -79,6 +94,7 @@ function FlightInput() {
   }
 
   //console.log(flights[0])
+  //console.log(formatDate(departureDate))
 
   return (
     <Fragment>
@@ -102,7 +118,7 @@ function FlightInput() {
           <Input type="text" label="From" variant='bordered' value={from} onChange={(e) => handleFromInputSearch(e.target.value)} />
           
           <Input type="text" label="To" variant='bordered' value={to} onChange={(e) => handleToInputSearch(e.target.value)} />
-          <DatePicker label="Departure Date" variant='bordered' className="max-w-[284px]" value={oneWayDate} onChange={setOneWayDate} />
+          <DatePicker label="Departure Date" variant='bordered' className="max-w-[284px]" value={departureDate} onChange={setDepartureDate} />
           {trip === 'round-trip' && (
             <DatePicker label="Return Date" variant='bordered' className="max-w-[284px]" value={returnDate} onChange={setReturnDate} />
           )}
@@ -120,14 +136,16 @@ function FlightInput() {
             price={flight?.price?.total} 
             from={flight?.itineraries[0]?.segments[0]?.departure?.iataCode} 
             fromTime={flight?.itineraries[0]?.segments[0]?.departure?.at} 
-            to={flight?.itineraries[0]?.segments[0]?.arrival?.iataCode} 
+            to={flight?.itineraries[0]?.segments[flight?.itineraries[0]?.segments.length - 1]?.arrival?.iataCode} 
             toTime={flight?.itineraries[0]?.segments[0]?.arrival?.at} 
             numberStops={flight?.itineraries[0]?.segments?.length} 
             totalTravelTime={flight?.itineraries[0]?.duration} 
             stopOneDeparture={flight?.itineraries[0]?.segments[0]?.departure?.iataCode} 
             stopOneArrival={flight?.itineraries[0]?.segments[0]?.arrival?.iataCode} 
             stopTwoDeparture={flight?.itineraries[0]?.segments[1]?.departure?.iataCode} 
-            stopTwoArrival={flight?.itineraries[0]?.segments[1]?.arrival?.iataCode}/>
+            stopTwoArrival={flight?.itineraries[0]?.segments[1]?.arrival?.iataCode}
+            stopThreeDeparture={flight?.itineraries[0]?.segments[2]?.departure?.iataCode} 
+            stopThreeArrival={flight?.itineraries[0]?.segments[2]?.arrival?.iataCode}/>
           ))
         ):('')}
       </div>
