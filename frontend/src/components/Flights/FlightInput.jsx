@@ -1,14 +1,12 @@
-import React, { Fragment, useContext, useState } from 'react';
+import React, { Fragment, useContext, useState , useEffect } from 'react';
 import { Input } from "@nextui-org/input";
 import { Select, SelectItem } from "@nextui-org/react";
 import { DatePicker } from "@nextui-org/date-picker";
-import { DateRangePicker } from "@nextui-org/date-picker";
 import axios from 'axios';
 import UserContext from '../../context/UserContext';
 import GenerateAccessToken from '../../utils/GenerateAccessToken';
 import FlightCard from './FlightCard';
-import AirportResultLists from './AirportResultLists';
-import {Button, ButtonGroup} from "@nextui-org/button";
+import {Button} from "@nextui-org/button";
 import FlightsFilter from './FlightsFilter';
 import {Slider} from "@nextui-org/react";
 
@@ -20,11 +18,9 @@ function FlightInput() {
   const [departureDate, setDepartureDate] = useState(null);
   const [returnDate, setReturnDate] = useState(null);
   const [flights , setFlights]= useState([])
-  const [airportData , setAirportData]= useState([])
   const [departureAirport , setDepartureAirport]= useState('')
   const [arrivalAirport , setArrivalAirport]= useState('')
   const [isLoading , setIsLoading]= useState(false)
-  
   const [isNonStop , setIsNonStop]= useState(false)
   const [ isOneStop , setIsOneStop]= useState(false)
 
@@ -38,33 +34,37 @@ function FlightInput() {
     return `${year}-${month}-${day}`
   }
   
-  const handleFromInputSearch = async (value)=>{
-    setFrom(value)
-    const headers = {'Authorization' :`Bearer ${accessToken}`}
-    const params = {'subType':'CITY,AIRPORT' , 'keyword':`${value}`}
-    try {
-      const airportData = await axios.get('https://test.api.amadeus.com/v1/reference-data/locations', {headers , params})
-      setAirportData(airportData?.data?.data)
-      setDepartureAirport(airportData?.data?.data[0]?.iataCode)
-      console.log(airportData?.data?.data[0]?.iataCode)
-    } catch (error) {
-      console.log('Error fetching airport data' , error)
-    } 
-  }
+  // debouncing. Whenever the user was typing city name , the api was called with every letter , so we delayed the API call by 500ms.
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      const fetchAirportData = async (keyword, setAirportCode) => {
+        const headers = { 'Authorization': `Bearer ${accessToken}` }
+        const params = { 'subType': 'CITY,AIRPORT', 'keyword': keyword }
+        try {
+          const response = await axios.get('https://test.api.amadeus.com/v1/reference-data/locations', { headers, params })
+          setAirportCode(response.data.data[0]?.iataCode)
+          //console.log(response.data.data[0]?.iataCode)
+        } catch (error) {
+          console.error('Error fetching airport data', error)
+        }
+      }
 
-  const handleToInputSearch = async (value)=>{
-    setTo(value)
-    const headers = {'Authorization' :`Bearer ${accessToken}`}
-    const params = {'subType':'CITY,AIRPORT' , 'keyword':`${value}`}
-    try {
-      const airportData = await axios.get('https://test.api.amadeus.com/v1/reference-data/locations', {headers , params})
-      setAirportData(airportData?.data?.data)
-      setArrivalAirport(airportData?.data?.data[0]?.iataCode)
-      //console.log(airportData?.data?.data[0]?.iataCode)
-    } catch (error) {
-      console.log('Error fetching airport data' , error)
-    } 
-  }
+      if (from) {
+        fetchAirportData(from, setDepartureAirport)
+      }
+
+      if (to) {
+        fetchAirportData(to, setArrivalAirport)
+      }
+    }, 500) // 500ms debounce delay
+
+    // When setTimeout is used in a useEffect hook, it schedules a delayed task, here it is delayed by 500ms.
+    // If dependencies change before the delay ends, multiple timeouts and API calls can occur.
+    // The cleanup function clears pending timeouts, ensuring only the latest input triggers the API call after the debounce delay.
+    return () => {
+      clearTimeout(handler)
+    }
+  }, [from, to, accessToken])
 
   const handleSearch = ()=>{
     setIsLoading(true)
@@ -81,7 +81,7 @@ function FlightInput() {
       const headers = {'Authorization' :`Bearer ${accessToken}`}
       try {
         const data = await axios.get('https://test.api.amadeus.com/v2/shopping/flight-offers', {params , headers})
-        console.log(data)
+        //console.log(data)
         //console.log(data?.data?.data)
         setFlights(data?.data?.data)
         setIsLoading(false)
@@ -96,7 +96,6 @@ function FlightInput() {
     }
     fetchFlightDetails()
   }
-
 
   //console.log(flights[0])
   //console.log(formatDate(departureDate))
@@ -120,55 +119,53 @@ function FlightInput() {
           </Select>
         </div>
         <div className="flex w-full flex-wrap md:flex-nowrap gap-4  mt-5">
-          <Input type="text" label="From" variant='bordered' value={from} onChange={(e) => handleFromInputSearch(e.target.value)} />
-          
-          <Input type="text" label="To" variant='bordered' value={to} onChange={(e) => handleToInputSearch(e.target.value)} />
+          <Input type="text" label="From" variant='bordered' value={from} onChange={(e) => setFrom(e.target.value)} />
+          <Input type="text" label="To" variant='bordered' value={to} onChange={(e) => setTo(e.target.value)} />
           <DatePicker label="Departure Date" variant='bordered' className="max-w-[284px]" value={departureDate} onChange={setDepartureDate} />
           {trip === 'round-trip' && (
             <DatePicker label="Return Date" variant='bordered' className="max-w-[284px]" value={returnDate} onChange={setReturnDate} />
           )}
         </div>
-        <div className='mt-5'>
-          
+        <div className='mt-5'> 
           {isLoading ? (<Button color='primary' isLoading>Loading</Button>): (<Button color='primary' onClick={handleSearch}>Search</Button>)}
         </div>
       </div>
       <div className='p-2'>
-      <Slider 
-          label="Price" 
-          step={1000} 
-          maxValue={100000} 
-          minValue={3000} 
-          defaultValue={5000}
-          className="max-w-md text-white font-bold p-2"
-        />
+        <Slider 
+            label="Price" 
+            step={1000} 
+            maxValue={100000} 
+            minValue={3000} 
+            defaultValue={5000}
+            className="max-w-md text-white font-bold p-2"
+         />
         <div className='m-5'>
-        <FlightsFilter  isNonStop={isNonStop} setIsNonStop={setIsNonStop} isOneStop={isOneStop} setIsOneStop={setIsOneStop}/>
+          <FlightsFilter  isNonStop={isNonStop} setIsNonStop={setIsNonStop} isOneStop={isOneStop} setIsOneStop={setIsOneStop}/>
         </div>
-        { flights.length >0 ? (
-          flights.filter((flight)=> {
-            return isNonStop ? (flight?.itineraries[0]?.segments?.length === 1) :(flight)
-          }).filter((flight)=> {
-            return isOneStop ? (flight?.itineraries[0]?.segments?.length === 2) :(flight)
-          }).map((flight)=>(
-            <FlightCard 
-            key={flight?.id} 
-            airLine={flight?.validatingAirlineCodes[0]} 
-            price={flight?.price?.total} 
-            from={flight?.itineraries[0]?.segments[0]?.departure?.iataCode} 
-            fromTime={flight?.itineraries[0]?.segments[0]?.departure?.at} 
-            to={flight?.itineraries[0]?.segments[flight?.itineraries[0]?.segments.length - 1]?.arrival?.iataCode} 
-            toTime={flight?.itineraries[0]?.segments[0]?.arrival?.at} 
-            numberStops={flight?.itineraries[0]?.segments?.length} 
-            totalTravelTime={flight?.itineraries[0]?.duration} 
-            stopOneDeparture={flight?.itineraries[0]?.segments[0]?.departure?.iataCode} 
-            stopOneArrival={flight?.itineraries[0]?.segments[0]?.arrival?.iataCode} 
-            stopTwoDeparture={flight?.itineraries[0]?.segments[1]?.departure?.iataCode} 
-            stopTwoArrival={flight?.itineraries[0]?.segments[1]?.arrival?.iataCode}
-            stopThreeDeparture={flight?.itineraries[0]?.segments[2]?.departure?.iataCode} 
-            stopThreeArrival={flight?.itineraries[0]?.segments[2]?.arrival?.iataCode}/>
-          ))
-        ):('')}
+          { flights.length >0 ? (
+            flights.filter((flight)=> {
+              return isNonStop ? (flight?.itineraries[0]?.segments?.length === 1) :(flight)
+            }).filter((flight)=> {
+              return isOneStop ? (flight?.itineraries[0]?.segments?.length === 2) :(flight)
+            }).map((flight)=>(
+              <FlightCard 
+              key={flight?.id} 
+              airLine={flight?.validatingAirlineCodes[0]} 
+              price={flight?.price?.total} 
+              from={flight?.itineraries[0]?.segments[0]?.departure?.iataCode} 
+              fromTime={flight?.itineraries[0]?.segments[0]?.departure?.at} 
+              to={flight?.itineraries[0]?.segments[flight?.itineraries[0]?.segments.length - 1]?.arrival?.iataCode} 
+              toTime={flight?.itineraries[0]?.segments[0]?.arrival?.at} 
+              numberStops={flight?.itineraries[0]?.segments?.length} 
+              totalTravelTime={flight?.itineraries[0]?.duration} 
+              stopOneDeparture={flight?.itineraries[0]?.segments[0]?.departure?.iataCode} 
+              stopOneArrival={flight?.itineraries[0]?.segments[0]?.arrival?.iataCode} 
+              stopTwoDeparture={flight?.itineraries[0]?.segments[1]?.departure?.iataCode} 
+              stopTwoArrival={flight?.itineraries[0]?.segments[1]?.arrival?.iataCode}
+              stopThreeDeparture={flight?.itineraries[0]?.segments[2]?.departure?.iataCode} 
+              stopThreeArrival={flight?.itineraries[0]?.segments[2]?.arrival?.iataCode}/>
+            ))
+          ):('')}
       </div>
     </Fragment>
   );

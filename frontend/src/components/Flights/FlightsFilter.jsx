@@ -4,7 +4,7 @@ import {Checkbox} from "@nextui-org/checkbox";
 
 function FlightsFilter({isNonStop , setIsNonStop , isOneStop , setIsOneStop}) {
   
-  console.log(isNonStop)
+  //console.log(isNonStop)
 
   return (
     <div className='flex w-full flex-wrap md:flex-nowrap gap-7 dark font-bold'>
