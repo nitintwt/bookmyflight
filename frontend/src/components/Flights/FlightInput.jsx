@@ -8,6 +8,9 @@ import UserContext from '../../context/UserContext';
 import GenerateAccessToken from '../../utils/GenerateAccessToken';
 import FlightCard from './FlightCard';
 import AirportResultLists from './AirportResultLists';
+import {Button, ButtonGroup} from "@nextui-org/button";
+import FlightsFilter from './FlightsFilter';
+import {Slider} from "@nextui-org/react";
 
 function FlightInput() {
   const [to, setTo] = useState('');
@@ -20,6 +23,10 @@ function FlightInput() {
   const [airportData , setAirportData]= useState([])
   const [departureAirport , setDepartureAirport]= useState('')
   const [arrivalAirport , setArrivalAirport]= useState('')
+  const [isLoading , setIsLoading]= useState(false)
+  
+  const [isNonStop , setIsNonStop]= useState(false)
+  const [ isOneStop , setIsOneStop]= useState(false)
 
   const {accessToken , setAccessToken}= useContext(UserContext)
 
@@ -31,12 +38,6 @@ function FlightInput() {
     return `${year}-${month}-${day}`
   }
   
-
-
-  
-  
-  
-
   const handleFromInputSearch = async (value)=>{
     setFrom(value)
     const headers = {'Authorization' :`Bearer ${accessToken}`}
@@ -66,14 +67,15 @@ function FlightInput() {
   }
 
   const handleSearch = ()=>{
+    setIsLoading(true)
     const fetchFlightDetails = async()=>{
       const params = {
         currencyCode: "INR",
-        originLocationCode : `${departureAirport}`,
-        destinationLocationCode : `${arrivalAirport}`,
-        departureDate : `${formatDate(departureDate)}`,
-        adults: `${numberPassengers}`,
-        max: '10',
+        originLocationCode : departureAirport,
+        destinationLocationCode : arrivalAirport,
+        departureDate : formatDate(departureDate),
+        adults: numberPassengers,
+        max: '20',
         
       }
       const headers = {'Authorization' :`Bearer ${accessToken}`}
@@ -82,16 +84,19 @@ function FlightInput() {
         console.log(data)
         //console.log(data?.data?.data)
         setFlights(data?.data?.data)
+        setIsLoading(false)
       } catch (error) {
-        /*if(error){
+        if(error){
           const token = await GenerateAccessToken()
           setAccessToken(token?.data?.access_token)
-        }*/
+          fetchFlightDetails()
+        }
         console.log('Error while fetching flight data ' , error)
       }
     }
     fetchFlightDetails()
   }
+
 
   //console.log(flights[0])
   //console.log(formatDate(departureDate))
@@ -123,13 +128,29 @@ function FlightInput() {
             <DatePicker label="Return Date" variant='bordered' className="max-w-[284px]" value={returnDate} onChange={setReturnDate} />
           )}
         </div>
-        <div>
-          <button onClick={handleSearch}>SEARCH</button>
+        <div className='mt-5'>
+          
+          {isLoading ? (<Button color='primary' isLoading>Loading</Button>): (<Button color='primary' onClick={handleSearch}>Search</Button>)}
         </div>
       </div>
       <div className='p-2'>
+      <Slider 
+          label="Price" 
+          step={1000} 
+          maxValue={100000} 
+          minValue={3000} 
+          defaultValue={5000}
+          className="max-w-md text-white font-bold p-2"
+        />
+        <div className='m-5'>
+        <FlightsFilter  isNonStop={isNonStop} setIsNonStop={setIsNonStop} isOneStop={isOneStop} setIsOneStop={setIsOneStop}/>
+        </div>
         { flights.length >0 ? (
-          flights.map((flight)=>(
+          flights.filter((flight)=> {
+            return isNonStop ? (flight?.itineraries[0]?.segments?.length === 1) :(flight)
+          }).filter((flight)=> {
+            return isOneStop ? (flight?.itineraries[0]?.segments?.length === 2) :(flight)
+          }).map((flight)=>(
             <FlightCard 
             key={flight?.id} 
             airLine={flight?.validatingAirlineCodes[0]} 

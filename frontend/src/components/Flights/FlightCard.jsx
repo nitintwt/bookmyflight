@@ -1,6 +1,7 @@
 import React, { useState , useContext , useEffect } from 'react';
 import axios from 'axios';
-import UserContext from '../../context/UserContext';
+import UserContext from '../../context/UserContext'
+import {Button, ButtonGroup} from "@nextui-org/button"
 
 const FlightCard = ({airLine , price , from , fromTime , to , toTime , totalTravelTime , numberStops , stopOneDeparture , stopOneArrival , stopTwoDeparture , stopTwoArrival , stopThreeDeparture , stopThreeArrival}) => {
   const {accessToken , setAccessToken}= useContext(UserContext)
@@ -78,7 +79,7 @@ const FlightCard = ({airLine , price , from , fromTime , to , toTime , totalTrav
         </div>
       </div>
       <div className="flex justify-end">
-        <button className="bg-blue-500 text-white px-4 py-2 rounded-md">Flight Details</button>
+        <Button color='primary'>Flight Details</Button>
       </div>
     </div>
   );

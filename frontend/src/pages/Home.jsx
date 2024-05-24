@@ -12,7 +12,7 @@ function Home() {
   useEffect(()=>{
     const generate = async ()=>{
       const token = await GenerateAccessToken()
-      //console.log(token)
+      console.log("access token generated",token)
       setAccessToken(token?.data?.access_token)
     }
     generate()

@@ -9,6 +9,7 @@ import Login from './pages/Login.jsx'
 import Signup from './pages/Signup.jsx'
 import { NextUIProvider } from '@nextui-org/react'
 import UserContextProvider from './context/UserContextProvider.jsx'
+import FlightInfoPage from './components/Flights/FlightInfoPage.jsx'
 
 const router = createBrowserRouter([
   {
@@ -26,6 +27,10 @@ const router = createBrowserRouter([
       {
         path:"/signup",
         element:<Signup/>
+      },
+      {
+        path:"/flightinfo",
+        element:<FlightInfoPage/>
       }
     ]
   }
