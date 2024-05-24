@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import {Checkbox} from "@nextui-org/checkbox";
 
 
-function FlightsFilter({isNonStop , setIsNonStop , isOneStop , setIsOneStop}) {
+function FlightsFilter({ isFastest , setIsFastest ,  isNonStop , setIsNonStop , isOneStop , setIsOneStop , isMorningDeparture , setIsMorningDeparture , isAfternoonDeparture , setIsAfternoonDeparture , isNightDeparture , setIsNightDeparture}) {
   
   //console.log(isNonStop)
 
@@ -12,7 +12,7 @@ function FlightsFilter({isNonStop , setIsNonStop , isOneStop , setIsOneStop}) {
       <Checkbox size="lg" isDisabled defaultSelected   >Cheapest First</Checkbox>
       </div>
       <div>
-      <Checkbox size="lg">Fastest</Checkbox>
+      <Checkbox size="lg" isSelected={isFastest} onChange={(()=> setIsFastest(!isFastest))}>Fastest</Checkbox>
       </div>
       <div>
       <Checkbox size="lg" isSelected={isNonStop} onChange={()=> setIsNonStop(!isNonStop)}>Non Stop</Checkbox>
@@ -21,13 +21,13 @@ function FlightsFilter({isNonStop , setIsNonStop , isOneStop , setIsOneStop}) {
       <Checkbox size="lg" isSelected={isOneStop} onChange={()=> setIsOneStop(!isOneStop)}>1 Stop</Checkbox>
       </div>
       <div>
-      <Checkbox size="lg" isSelected={isOneStop} onChange={()=> setIsOneStop(!isOneStop)}>Morning Departure</Checkbox>
+      <Checkbox size="lg" isSelected={isMorningDeparture} onChange={()=> setIsMorningDeparture(!isMorningDeparture)}>Morning Departure</Checkbox>
       </div>
       <div>
-      <Checkbox size="lg" isSelected={isOneStop} onChange={()=> setIsOneStop(!isOneStop)}>Afternoon Departure</Checkbox>
+      <Checkbox size="lg" isSelected={isAfternoonDeparture} onChange={()=> setIsAfternoonDeparture(!isAfternoonDeparture)}>Afternoon Departure</Checkbox>
       </div>
       <div>
-      <Checkbox size="lg" isSelected={isOneStop} onChange={()=> setIsOneStop(!isOneStop)}>Night departure</Checkbox>
+      <Checkbox size="lg" isSelected={isNightDeparture} onChange={()=> setIsNightDeparture(!isNightDeparture)}>Night departure</Checkbox>
       </div>
     </div>
   )

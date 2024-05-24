@@ -23,6 +23,10 @@ function FlightInput() {
   const [isLoading , setIsLoading]= useState(false)
   const [isNonStop , setIsNonStop]= useState(false)
   const [ isOneStop , setIsOneStop]= useState(false)
+  const [isMorningDeparture , setIsMorningDeparture]= useState(false)
+  const [isAfternoonDeparture , setIsAfternoonDeparture]= useState(false)
+  const [isNightDeparture , setIsNightDeparture]= useState(false)
+  const [ isFastest , setIsFastest]= useState(false)
 
   const {accessToken , setAccessToken}= useContext(UserContext)
 
@@ -32,6 +36,32 @@ function FlightInput() {
     const day = date?.day < 10 ? `0${date?.day}` : date?.day
   
     return `${year}-${month}-${day}`
+  }
+  const formatTotalTravelDuration = (duration) => {
+    // Match the duration string against the regular expression pattern
+    const match = duration.match(/PT(\d+H)?(\d+M)?/)
+  
+    // Extract hours and minutes from the matched groups
+    const hours = match[1] ? match[1].replace('H', '') : '0'
+    const minutes = match[2] ? match[2].replace('M', '') : '0'
+  
+    // Construct the human-readable format by combining hours and minutes
+    return `${hours}h ${minutes}m`.trim()
+  }
+
+  const formatTiming = (dateTime) => {
+    // Extract the time part from the datetime string
+    const timePart = dateTime?.split('T')[1]
+  
+    // Match the time part against the regular expression pattern
+    const match = timePart?.match(/(\d+):(\d+):(\d+)/)
+  
+    // Extract hours and minutes from the matched groups
+    const hours = match && match[1] ? match[1] : '0'
+    const minutes = match && match[2] ? match[2] : '0'
+  
+    // Construct the human-readable format by combining hours and minutes
+    return `${hours}:${minutes}`.trim()
   }
   
   // debouncing. Whenever the user was typing city name , the api was called with every letter , so we delayed the API call by 500ms.
@@ -64,7 +94,7 @@ function FlightInput() {
     return () => {
       clearTimeout(handler)
     }
-  }, [from, to, accessToken])
+  }, [from, to])
 
   const handleSearch = ()=>{
     setIsLoading(true)
@@ -99,6 +129,7 @@ function FlightInput() {
 
   //console.log(flights[0])
   //console.log(formatDate(departureDate))
+  console.log(isMorningDeparture)
 
   return (
     <Fragment>
@@ -140,12 +171,30 @@ function FlightInput() {
             className="max-w-md text-white font-bold p-2"
          />
         <div className='m-5'>
-          <FlightsFilter  isNonStop={isNonStop} setIsNonStop={setIsNonStop} isOneStop={isOneStop} setIsOneStop={setIsOneStop}/>
+          <FlightsFilter  
+          isNonStop={isNonStop} 
+          setIsNonStop={setIsNonStop} 
+          isOneStop={isOneStop} 
+          setIsOneStop={setIsOneStop} 
+          isMorningDeparture={isMorningDeparture} 
+          setIsMorningDeparture={setIsMorningDeparture}
+          isAfternoonDeparture={isAfternoonDeparture}
+          setIsAfternoonDeparture={setIsAfternoonDeparture}
+          isNightDeparture={isNightDeparture}
+          setIsNightDeparture={setIsNightDeparture}
+          isFastest={isFastest}
+          setIsFastest={setIsFastest} />
         </div>
           { flights.length >0 ? (
             flights.filter((flight)=> {
               return isNonStop ? (flight?.itineraries[0]?.segments?.length === 1) :(flight)
-            }).filter((flight)=> {
+            }).filter((flight) => {
+              return isMorningDeparture ? (parseInt(formatTiming(flight.itineraries[0].segments[0].departure.at)) < 12) : (flight)
+          }).filter((flight) => {
+              return isAfternoonDeparture ? (parseInt(formatTiming(flight.itineraries[0].segments[0].departure.at)) >= 12 && parseInt(formatTiming(flight.itineraries[0].segments[0].departure.at)) <= 16) : (flight)
+          }).filter((flight) => {
+              return isNightDeparture ? (parseInt(formatTiming(flight.itineraries[0].segments[0].departure.at)) >= 19 && parseInt(formatTiming(flight.itineraries[0].segments[0].departure.at)) <= 23 ) : (flight)
+          }).filter((flight)=> {
               return isOneStop ? (flight?.itineraries[0]?.segments?.length === 2) :(flight)
             }).map((flight)=>(
               <FlightCard 
