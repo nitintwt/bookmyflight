@@ -2,7 +2,7 @@ import React, { Fragment, useContext, useState , useEffect } from 'react';
 import { Input } from "@nextui-org/input";
 import { Select, SelectItem } from "@nextui-org/react";
 import { DatePicker } from "@nextui-org/date-picker";
-import axios from 'axios';
+import axios, { formToJSON } from 'axios';
 import UserContext from '../../context/UserContext';
 import GenerateAccessToken from '../../utils/GenerateAccessToken';
 import FlightCard from './FlightCard';
@@ -129,7 +129,7 @@ function FlightInput() {
 
   //console.log(flights[0])
   //console.log(formatDate(departureDate))
-  console.log(isMorningDeparture)
+  //console.log(isMorningDeparture)
 
   return (
     <Fragment>
@@ -186,7 +186,13 @@ function FlightInput() {
           setIsFastest={setIsFastest} />
         </div>
           { flights.length >0 ? (
-            flights.filter((flight)=> {
+            flights.slice().sort( 
+              (a , b)=>{
+                if (isFastest){
+                  return parseFloat(formatTotalTravelDuration(a.itineraries[0]?.duration)) - parseFloat(formatTotalTravelDuration(b.itineraries[0]?.duration))
+                }
+              }
+            ).filter((flight)=> {
               return isNonStop ? (flight?.itineraries[0]?.segments?.length === 1) :(flight)
             }).filter((flight) => {
               return isMorningDeparture ? (parseInt(formatTiming(flight.itineraries[0].segments[0].departure.at)) < 12) : (flight)
