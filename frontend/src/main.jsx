@@ -1,15 +1,15 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import App from './App.jsx'
 import './index.css'
 import { RouterProvider, createBrowserRouter } from 'react-router-dom'
+import { store } from './store/Store.js'
 import Layout from './Layout.jsx'
 import Home from './pages/Home.jsx'
 import Login from './pages/Login.jsx'
 import Signup from './pages/Signup.jsx'
 import { NextUIProvider } from '@nextui-org/react'
-import UserContextProvider from './context/UserContextProvider.jsx'
 import FlightInfoPage from './components/Flights/FlightInfoPage.jsx'
+import { Provider } from 'react-redux'
 
 const router = createBrowserRouter([
   {
@@ -29,7 +29,7 @@ const router = createBrowserRouter([
         element:<Signup/>
       },
       {
-        path:"/flightinfo",
+        path:"/flight-info/:id",
         element:<FlightInfoPage/>
       }
     ]
@@ -38,10 +38,10 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <UserContextProvider>
+    <Provider store={store}>
       <NextUIProvider>
        <RouterProvider router={router}/>
       </NextUIProvider>
-    </UserContextProvider>
+    </Provider>
   </React.StrictMode>,
 )

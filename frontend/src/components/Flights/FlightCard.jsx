@@ -1,10 +1,11 @@
 import React, { useState , useContext , useEffect } from 'react';
 import axios from 'axios';
-import UserContext from '../../context/UserContext'
 import {Button, ButtonGroup} from "@nextui-org/button"
+import {Link} from 'react-router-dom'
+import { useSelector } from "react-redux";
 
-const FlightCard = ({airLine , price , from , fromTime , to , toTime , totalTravelTime , numberStops , stopOneDeparture , stopOneArrival , stopTwoDeparture , stopTwoArrival , stopThreeDeparture , stopThreeArrival}) => {
-  const {accessToken , setAccessToken}= useContext(UserContext)
+const FlightCard = ({flightcode , airLine , price , from , fromTime , to , toTime , totalTravelTime , numberStops , stopOneDeparture , stopOneArrival , stopTwoDeparture , stopTwoArrival , stopThreeDeparture , stopThreeArrival}) => {
+  const userAccessToken = useSelector((state)=> state?.user?.accessToken)
   const [airlineName, setAirlineName] = useState(null);
   
 
@@ -38,7 +39,7 @@ const FlightCard = ({airLine , price , from , fromTime , to , toTime , totalTrav
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const headers = { 'Authorization': `Bearer ${accessToken}` };
+        const headers = { 'Authorization': `Bearer ${userAccessToken}` };
         const params = { 'airlineCodes': `${airLine}` };
         const response = await axios.get('https://test.api.amadeus.com/v1/reference-data/airlines?airlineCodes', { params, headers });
         setAirlineName(response?.data?.data[0]?.businessName);
@@ -79,7 +80,7 @@ const FlightCard = ({airLine , price , from , fromTime , to , toTime , totalTrav
         </div>
       </div>
       <div className="flex justify-end">
-        <Button color='primary'>Flight Details</Button>
+        <Link to={`/flight-info/${flightcode}`}>Flight Details</Link>
       </div>
     </div>
   );

@@ -2,6 +2,7 @@ import {Button, ButtonGroup} from "@nextui-org/button";
 import {Card, CardHeader, CardBody, CardFooter} from "@nextui-org/card";
 
 
+
 export default function FlightInfoPage() {
   return (
     <div className="w-full lg:h-screen mx-auto p-4 lg:px-6 sm:py-8 md:py-10 bg-gray-950">

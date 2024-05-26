@@ -1,19 +1,20 @@
 import axios from 'axios';
 import React, { useContext, useEffect, useState } from 'react';
 import HeroSection from '../components/Home/HeroSection';
-import UserContext from '../context/UserContext';
 import GenerateAccessToken from '../utils/GenerateAccessToken';
 import Flight from './Flight';
+import {useDispatch} from 'react-redux'
+import { assignAccessToken } from '../store/UserSlice';
 
 function Home() {
-  const {setAccessToken , accessToken}= useContext(UserContext)
+  const dispatch = useDispatch()
   
   
   useEffect(()=>{
     const generate = async ()=>{
       const token = await GenerateAccessToken()
       console.log("access token generated")
-      setAccessToken(token?.data?.access_token)
+      dispatch(assignAccessToken({accessToken:token?.data?.access_token}))
     }
     generate()
   },[])

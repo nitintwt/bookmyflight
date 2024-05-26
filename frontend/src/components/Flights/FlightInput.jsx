@@ -3,12 +3,12 @@ import { Input } from "@nextui-org/input";
 import { Select, SelectItem } from "@nextui-org/react";
 import { DatePicker } from "@nextui-org/date-picker";
 import axios, { formToJSON } from 'axios';
-import UserContext from '../../context/UserContext';
 import GenerateAccessToken from '../../utils/GenerateAccessToken';
 import FlightCard from './FlightCard';
 import {Button} from "@nextui-org/button";
 import FlightsFilter from './FlightsFilter';
 import {Slider} from "@nextui-org/react";
+import { useSelector } from "react-redux";
 
 function FlightInput() {
   const [to, setTo] = useState('');
@@ -27,8 +27,9 @@ function FlightInput() {
   const [isAfternoonDeparture , setIsAfternoonDeparture]= useState(false)
   const [isNightDeparture , setIsNightDeparture]= useState(false)
   const [ isFastest , setIsFastest]= useState(false)
+  const [priceRange , setPriceRange]= useState(100000)
 
-  const {accessToken , setAccessToken}= useContext(UserContext)
+  const userAccessToken = useSelector((state)=> state?.user?.accessToken)
 
   const formatDate = (date) => {
     const year = date?.year
@@ -68,7 +69,7 @@ function FlightInput() {
   useEffect(() => {
     const handler = setTimeout(() => {
       const fetchAirportData = async (keyword, setAirportCode) => {
-        const headers = { 'Authorization': `Bearer ${accessToken}` }
+        const headers = { 'Authorization': `Bearer ${userAccessToken}` }
         const params = { 'subType': 'CITY,AIRPORT', 'keyword': keyword }
         try {
           const response = await axios.get('https://test.api.amadeus.com/v1/reference-data/locations', { headers, params })
@@ -108,7 +109,7 @@ function FlightInput() {
         max: '20',
         
       }
-      const headers = {'Authorization' :`Bearer ${accessToken}`}
+      const headers = {'Authorization' :`Bearer ${userAccessToken}`}
       try {
         const data = await axios.get('https://test.api.amadeus.com/v2/shopping/flight-offers', {params , headers})
         //console.log(data)
@@ -129,7 +130,7 @@ function FlightInput() {
 
   //console.log(flights[0])
   //console.log(formatDate(departureDate))
-  //console.log(isMorningDeparture)
+  console.log(priceRange)
 
   return (
     <Fragment>
@@ -163,11 +164,15 @@ function FlightInput() {
       </div>
       <div className='p-2'>
         <Slider 
-            label="Price" 
-            step={1000} 
+            label="Price less than" 
+            formatOptions={{style: "currency", currency: "INR"}}
+            step={1000}   
             maxValue={100000} 
             minValue={3000} 
-            defaultValue={5000}
+            defaultValue={100000}
+            showTooltip={true}
+            value={priceRange}
+            onChange={setPriceRange}
             className="max-w-md text-white font-bold p-2"
          />
         <div className='m-5'>
@@ -194,6 +199,8 @@ function FlightInput() {
               }
             ).filter((flight)=> {
               return isNonStop ? (flight?.itineraries[0]?.segments?.length === 1) :(flight)
+            }).filter((flight)=>{
+              return parseInt(flight?.price?.total) < `${priceRange}`
             }).filter((flight) => {
               return isMorningDeparture ? (parseInt(formatTiming(flight.itineraries[0].segments[0].departure.at)) < 12) : (flight)
           }).filter((flight) => {
@@ -205,6 +212,7 @@ function FlightInput() {
             }).map((flight)=>(
               <FlightCard 
               key={flight?.id} 
+              flightcode={flight?.id}
               airLine={flight?.validatingAirlineCodes[0]} 
               price={flight?.price?.total} 
               from={flight?.itineraries[0]?.segments[0]?.departure?.iataCode} 
