@@ -1,9 +1,40 @@
 import {Button, ButtonGroup} from "@nextui-org/button";
 import {Card, CardHeader, CardBody, CardFooter} from "@nextui-org/card";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import fetchFlightDetails from "../../utils/fetchFlightDetails";
+import { useParams } from "react-router-dom";
 
 
 
 export default function FlightInfoPage() {
+  const flightData = useSelector((state)=> state?.flight?.flightData)
+  const userAccessToken = useSelector((state)=> state?.user?.accessToken)
+  const {id}= useParams()
+  const [flightInfo , setFlightInfo]= useState('')
+
+  useEffect(()=>{
+    const flightDetails = async ()=>{
+      try {
+        const data = await fetchFlightDetails(
+          {
+            departureAirport: flightData?.departureAirport,
+            arrivalAirport:flightData?.arrivalAirport,
+            departureDate: flightData?.departureDate,
+            numberPassengers: flightData?.numberPassengers,
+            userAccessToken: userAccessToken,
+          }
+      )
+      setFlightInfo(data?.data?.data)
+      console.log(data?.data?.data)
+      } catch (error) {
+        console.log('Error fetching flight data' , error)
+      }
+    }
+    flightDetails()
+  },[])
+  
+
   return (
     <div className="w-full lg:h-screen mx-auto p-4 lg:px-6 sm:py-8 md:py-10 bg-gray-950">
       <section className="grid md:grid-cols-2 gap-8 ">

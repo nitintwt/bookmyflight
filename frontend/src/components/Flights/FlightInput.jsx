@@ -3,12 +3,14 @@ import { Input } from "@nextui-org/input";
 import { Select, SelectItem } from "@nextui-org/react";
 import { DatePicker } from "@nextui-org/date-picker";
 import axios, { formToJSON } from 'axios';
-import GenerateAccessToken from '../../utils/GenerateAccessToken';
+import generateAccessToken from '../../utils/generateAccessToken.js';
 import FlightCard from './FlightCard';
 import {Button} from "@nextui-org/button";
 import FlightsFilter from './FlightsFilter';
 import {Slider} from "@nextui-org/react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { setFlightData } from '../../store/FlightSlice';
+import fetchFlightDetails from '../../utils/fetchFlightDetails.js';
 
 function FlightInput() {
   const [to, setTo] = useState('');
@@ -28,8 +30,10 @@ function FlightInput() {
   const [isNightDeparture , setIsNightDeparture]= useState(false)
   const [ isFastest , setIsFastest]= useState(false)
   const [priceRange , setPriceRange]= useState(100000)
+  const dispatch = useDispatch()
 
   const userAccessToken = useSelector((state)=> state?.user?.accessToken)
+  console.log('redux' , userAccessToken)
 
   const formatDate = (date) => {
     const year = date?.year
@@ -97,40 +101,25 @@ function FlightInput() {
     }
   }, [from, to])
 
-  const handleSearch = ()=>{
+  const handleSearch = async ()=>{
     setIsLoading(true)
-    const fetchFlightDetails = async()=>{
-      const params = {
-        currencyCode: "INR",
-        originLocationCode : departureAirport,
-        destinationLocationCode : arrivalAirport,
-        departureDate : formatDate(departureDate),
-        adults: numberPassengers,
-        max: '20',
-        
-      }
-      const headers = {'Authorization' :`Bearer ${userAccessToken}`}
-      try {
-        const data = await axios.get('https://test.api.amadeus.com/v2/shopping/flight-offers', {params , headers})
-        //console.log(data)
-        //console.log(data?.data?.data)
-        setFlights(data?.data?.data)
-        setIsLoading(false)
-      } catch (error) {
-        if(error){
-          const token = await GenerateAccessToken()
-          setAccessToken(token?.data?.access_token)
-          fetchFlightDetails()
-        }
-        console.log('Error while fetching flight data ' , error)
-      }
+    try {
+      const data = await fetchFlightDetails(
+        {
+          departureAirport: departureAirport,
+          arrivalAirport:arrivalAirport,
+          departureDate:departureDate,
+          numberPassengers:numberPassengers,
+          userAccessToken:userAccessToken,
+        })
+      setFlights(data?.data?.data)
+      setIsLoading(false)
+      dispatch (setFlightData({departureAirport , arrivalAirport , numberPassengers ,departureDate}))
+    } catch (error) {
+      console.log('Error while fetching flight data ' , error) 
     }
-    fetchFlightDetails()
+    
   }
-
-  //console.log(flights[0])
-  //console.log(formatDate(departureDate))
-  console.log(priceRange)
 
   return (
     <Fragment>
