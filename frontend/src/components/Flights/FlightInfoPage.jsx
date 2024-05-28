@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import fetchFlightDetails from "../../utils/fetchFlightDetails";
 import { useParams } from "react-router-dom";
+import formatTiming from "../../utils/formatTiming";
 
 export default function FlightInfoPage() {
   const flightData = useSelector((state)=> state?.flight?.flightData)
@@ -28,7 +29,7 @@ export default function FlightInfoPage() {
         return flight?.id === id
       }
       )
-      setFlightInfo(myFlight[id-1])
+      setFlightInfo(myFlight[0])
       } catch (error) {
         console.log('Error fetching flight data' , error)
       }
@@ -45,13 +46,13 @@ export default function FlightInfoPage() {
           <div className="flex items-center gap-4">
             <div>
               <h1 className="text-2xl text-white font-bold">Air India</h1>
-              <p className="text-white">Flight </p>
+              <p className="text-white">Flight  {flightInfo?.itineraries?.[0]?.segments?.[0]?.number} </p>
             </div>
           </div>
           <div className="grid md:grid-cols-2 gap-4 text-white">
             <div className="grid gap-1">
               <div className="text-sm font-medium">Cabin Class</div>
-              <div className="text-lg font-bold">Economy</div>
+              <div className="text-lg font-bold">{flightInfo?.travelerPricings?.[0]?.fareDetailsBySegment?.[0]?.cabin}</div>
             </div>
             <div className="grid gap-1">
               <div className="text-sm font-medium">Price</div>
@@ -73,33 +74,37 @@ export default function FlightInfoPage() {
             </div>
             <div className="grid gap-1">
             <div className="text-sm font-medium">Stops</div>
-            <div className="text-lg font-bold">L{flightInfo?.itineraries?.[0]?.segments?.length}</div>
+            <div className="text-lg font-bold">{flightInfo?.itineraries?.[0]?.segments?.length}</div>
             </div>
           </div>
           <div className="grid md:grid-cols-2 gap-4 text-white">
             <div className="grid gap-1">
               <div className="text-sm font-medium">Departs</div>
-              <div className="text-lg font-bold">{flightInfo?.itineraries?.[0]?.segments?.[0]?.departure?.at }</div>
+              <div className="text-lg font-bold">{formatTiming(flightInfo?.itineraries?.[0]?.segments?.[0]?.departure?.at) }</div>
             </div>
             <div className="grid gap-1">
               <div className="text-sm font-medium">Arrives</div>
-              <div className="text-lg font-bold">{flightInfo?.itineraries?.[0]?.segments?.[0]?.arrival?.at }</div>
+              <div className="text-lg font-bold">{formatTiming(flightInfo?.itineraries?.[0]?.segments?.[0]?.arrival?.at) }</div>
             </div>
           </div>
           <div className="grid md:grid-cols-2 gap-4 text-white">
             <div className="grid gap-1">
               <div className="text-sm font-medium">Passengers</div>
-              <div className="text-lg font-bold">2 Adults, 1 Child</div>
+              <div className="text-lg font-bold">{flightData?.numberPassengers}</div>
+            </div>
+            <div className="grid gap-1">
+              <div className="text-sm font-medium">Excess Hand Baggage</div>
+              <div className="text-lg font-bold">{flightInfo?.travelerPricings?.[0]?.fareDetailsBySegment?.[0]?.includedCheckedBags?.weight}kg</div>
             </div>
             <div className="grid gap-1">
               <div className="text-sm font-medium">Baggage Limit</div>
-              <div className="text-lg font-bold">15kg</div>
+              <div className="text-lg font-bold">{flightInfo?.travelerPricings?.[0]?.fareDetailsBySegment?.[0]?.amenities?.[0]?.isChargeable === false ? ('Included'):('Not Included')}</div>
             </div>
           </div>
           <div className="grid md:grid-cols-2 gap-4 text-white">
             <div className="grid gap-1">
               <div className="text-sm font-medium">Meal Service</div>
-              <div className="text-lg font-bold">Included</div>
+              <div className="text-lg font-bold">{flightInfo?.travelerPricings?.[0]?.fareDetailsBySegment?.[0]?.amenities?.[2]?.isChargeable === false ? ('Included'):('Not Included')}</div>
             </div>
           </div>
         </div>
@@ -142,17 +147,17 @@ export default function FlightInfoPage() {
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="grid gap-1">
                   <div className="text-sm font-medium">Departure Time</div>
-                  <div className="text-lg font-bold">{flightInfo?.itineraries?.[0]?.segments?.[0]?.departure?.at}</div>
+                  <div className="text-lg font-bold">{formatTiming(flightInfo?.itineraries?.[0]?.segments?.[0]?.departure?.at)}</div>
                 </div>  
                 <div className="grid gap-1">
                   <div className="text-sm font-medium">Arrival Time</div>
-                  <div className="text-lg font-bold">{flightInfo?.itineraries?.[0]?.segments?.[0]?.arrival?.at}</div>
+                  <div className="text-lg font-bold">{formatTiming(flightInfo?.itineraries?.[0]?.segments?.[0]?.arrival?.at)}</div>
                 </div>
               </div>
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="grid gap-1">
-                  <div className="text-sm font-medium">Terminal</div>
-                  <div className="text-lg font-bold">B</div>
+                  <div className="text-sm font-medium"> Arrival Terminal</div>
+                  <div className="text-lg font-bold">{flightInfo?.itineraries?.[0]?.segments?.[0]?.arrival?.terminal}</div>
                 </div>   
                 <div className="grid gap-1">
                   <div className="text-sm font-medium">Stops</div>

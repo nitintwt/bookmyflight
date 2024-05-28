@@ -11,6 +11,8 @@ import {Slider} from "@nextui-org/react";
 import { useDispatch, useSelector } from "react-redux";
 import { setFlightData } from '../../store/FlightSlice';
 import fetchFlightDetails from '../../utils/fetchFlightDetails.js';
+import formatTiming from '../../utils/formatTiming.js';
+import formatTotalTravelDuration from '../../utils/formatTotalTravelDuration.js';
 
 function FlightInput() {
   const [to, setTo] = useState('');
@@ -33,41 +35,8 @@ function FlightInput() {
   const dispatch = useDispatch()
 
   const userAccessToken = useSelector((state)=> state?.user?.accessToken)
-  console.log('redux' , userAccessToken)
+  const flightData = useSelector((state)=> state?.flight?.flightData)
 
-  const formatDate = (date) => {
-    const year = date?.year
-    const month = date?.month < 10 ? `0${date?.month}` : date?.month
-    const day = date?.day < 10 ? `0${date?.day}` : date?.day
-  
-    return `${year}-${month}-${day}`
-  }
-  const formatTotalTravelDuration = (duration) => {
-    // Match the duration string against the regular expression pattern
-    const match = duration.match(/PT(\d+H)?(\d+M)?/)
-  
-    // Extract hours and minutes from the matched groups
-    const hours = match[1] ? match[1].replace('H', '') : '0'
-    const minutes = match[2] ? match[2].replace('M', '') : '0'
-  
-    // Construct the human-readable format by combining hours and minutes
-    return `${hours}h ${minutes}m`.trim()
-  }
-
-  const formatTiming = (dateTime) => {
-    // Extract the time part from the datetime string
-    const timePart = dateTime?.split('T')[1]
-  
-    // Match the time part against the regular expression pattern
-    const match = timePart?.match(/(\d+):(\d+):(\d+)/)
-  
-    // Extract hours and minutes from the matched groups
-    const hours = match && match[1] ? match[1] : '0'
-    const minutes = match && match[2] ? match[2] : '0'
-  
-    // Construct the human-readable format by combining hours and minutes
-    return `${hours}:${minutes}`.trim()
-  }
   
   // debouncing. Whenever the user was typing city name , the api was called with every letter , so we delayed the API call by 500ms.
   useEffect(() => {
@@ -102,23 +71,24 @@ function FlightInput() {
   }, [from, to])
 
   const handleSearch = async ()=>{
+    dispatch (setFlightData({departureAirport , arrivalAirport , numberPassengers ,departureDate}))
     setIsLoading(true)
     try {
       const data = await fetchFlightDetails(
         {
-          departureAirport: departureAirport,
-          arrivalAirport:arrivalAirport,
-          departureDate:departureDate,
-          numberPassengers:numberPassengers,
+          departureAirport: flightData?.departureAirport,
+          arrivalAirport: flightData?.arrivalAirport,
+          departureDate: flightData?.departureDate,
+          numberPassengers: flightData?.numberPassengers,
           userAccessToken:userAccessToken,
         })
+
       setFlights(data?.data?.data)
       setIsLoading(false)
-      dispatch (setFlightData({departureAirport , arrivalAirport , numberPassengers ,departureDate}))
+   
     } catch (error) {
       console.log('Error while fetching flight data ' , error) 
-    }
-    
+    }  
   }
 
   return (
@@ -220,7 +190,7 @@ function FlightInput() {
           ):('')}
       </div>
     </Fragment>
-  );
+  )
 }
 
-export default FlightInput;
+export default FlightInput
