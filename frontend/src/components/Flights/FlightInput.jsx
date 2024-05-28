@@ -177,7 +177,7 @@ function FlightInput() {
               from={flight?.itineraries[0]?.segments[0]?.departure?.iataCode} 
               fromTime={flight?.itineraries[0]?.segments[0]?.departure?.at} 
               to={flight?.itineraries[0]?.segments[flight?.itineraries[0]?.segments.length - 1]?.arrival?.iataCode} 
-              toTime={flight?.itineraries[0]?.segments[0]?.arrival?.at} 
+              toTime={flight?.itineraries[0]?.segments[flight?.itineraries[0]?.segments.length - 1]?.arrival?.at} 
               numberStops={flight?.itineraries[0]?.segments?.length} 
               totalTravelTime={flight?.itineraries[0]?.duration} 
               stopOneDeparture={flight?.itineraries[0]?.segments[0]?.departure?.iataCode} 

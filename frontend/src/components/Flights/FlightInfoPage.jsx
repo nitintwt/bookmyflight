@@ -1,19 +1,24 @@
 import {Button, ButtonGroup} from "@nextui-org/button";
 import {Card, CardHeader, CardBody, CardFooter} from "@nextui-org/card";
+import axios from "axios";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import fetchFlightDetails from "../../utils/fetchFlightDetails";
 import { useParams } from "react-router-dom";
 import formatTiming from "../../utils/formatTiming";
+import FlightInfoLoadingSkeleton from "../ui/FlightInfoLoadingSkeleton";
 
 export default function FlightInfoPage() {
   const flightData = useSelector((state)=> state?.flight?.flightData)
   const userAccessToken = useSelector((state)=> state?.user?.accessToken)
   const {id}= useParams()
   const  [flightInfo , setFlightInfo]= useState('')
+  const [loading , setLoading]= useState(false)
+  const [airLineName , setAirlineName]= useState('')
 
   useEffect(()=>{
     const flightDetails = async ()=>{
+      setLoading(true)
       try {
         const data = await fetchFlightDetails(
           {
@@ -30,6 +35,7 @@ export default function FlightInfoPage() {
       }
       )
       setFlightInfo(myFlight[0])
+      setLoading(false)
       } catch (error) {
         console.log('Error fetching flight data' , error)
       }
@@ -37,15 +43,36 @@ export default function FlightInfoPage() {
     flightDetails()
   },[])
 
+  useEffect(() => {
+    setTimeout(()=>{
+      const fetchData = async () => {
+        try {
+          const headers = { 'Authorization': `Bearer ${userAccessToken}` };
+          const params = { 'airlineCodes': `${flightInfo?.validatingAirlineCodes?.[0]}` };
+          const response = await axios.get('https://test.api.amadeus.com/v1/reference-data/airlines?airlineCodes', { params, headers });
+          setAirlineName(response?.data?.data[0]?.businessName);
+        } catch (error) {
+          console.log("error fetching airline name ", error);
+        }
+      }
+      fetchData(); 
+    }, 5000)
+  },[]);
+
   console.log(flightInfo) 
+
+  
  
   return (
     <div className="w-full lg:h-screen mx-auto p-4 lg:px-6 sm:py-8 md:py-10 bg-gray-950">
-      <section className="grid md:grid-cols-2 gap-8 ">
+    { loading ? 
+    (<FlightInfoLoadingSkeleton/>)
+    :   
+      (<section className="grid md:grid-cols-2 gap-8 ">
         <div className="grid gap-6">
           <div className="flex items-center gap-4">
             <div>
-              <h1 className="text-2xl text-white font-bold">Air India</h1>
+              <h1 className="text-2xl text-white font-bold">{airLineName}</h1>
               <p className="text-white">Flight  {flightInfo?.itineraries?.[0]?.segments?.[0]?.number} </p>
             </div>
           </div>
@@ -69,12 +96,8 @@ export default function FlightInfoPage() {
               <div className="text-lg font-bold">One way</div>
             </div>
             <div className="grid gap-1">
-              <div className="text-sm font-medium">Layover</div>
-              <div className="text-lg font-bold">2h 15m</div>
-            </div>
-            <div className="grid gap-1">
             <div className="text-sm font-medium">Stops</div>
-            <div className="text-lg font-bold">{flightInfo?.itineraries?.[0]?.segments?.length}</div>
+            <div className="text-lg font-bold">{flightInfo?.itineraries?.[0]?.segments?.length -1}</div>
             </div>
           </div>
           <div className="grid md:grid-cols-2 gap-4 text-white">
@@ -84,7 +107,7 @@ export default function FlightInfoPage() {
             </div>
             <div className="grid gap-1">
               <div className="text-sm font-medium">Arrives</div>
-              <div className="text-lg font-bold">{formatTiming(flightInfo?.itineraries?.[0]?.segments?.[0]?.arrival?.at) }</div>
+              <div className="text-lg font-bold">{formatTiming(flightInfo?.itineraries?.[0]?.segments[flightInfo?.itineraries?.[0]?.segments.length - 1]?.arrival?.at) }</div>
             </div>
           </div>
           <div className="grid md:grid-cols-2 gap-4 text-white">
@@ -93,12 +116,8 @@ export default function FlightInfoPage() {
               <div className="text-lg font-bold">{flightData?.numberPassengers}</div>
             </div>
             <div className="grid gap-1">
-              <div className="text-sm font-medium">Excess Hand Baggage</div>
-              <div className="text-lg font-bold">{flightInfo?.travelerPricings?.[0]?.fareDetailsBySegment?.[0]?.includedCheckedBags?.weight}kg</div>
-            </div>
-            <div className="grid gap-1">
-              <div className="text-sm font-medium">Baggage Limit</div>
-              <div className="text-lg font-bold">{flightInfo?.travelerPricings?.[0]?.fareDetailsBySegment?.[0]?.amenities?.[0]?.isChargeable === false ? ('Included'):('Not Included')}</div>
+              <div className="text-sm font-medium"> Baggage Limit</div>
+              <div className="text-lg font-bold">{flightInfo?.travelerPricings?.[0]?.fareDetailsBySegment?.[0]?.includedCheckedBags?.weight || 15}kg</div>
             </div>
           </div>
           <div className="grid md:grid-cols-2 gap-4 text-white">
@@ -151,28 +170,33 @@ export default function FlightInfoPage() {
                 </div>  
                 <div className="grid gap-1">
                   <div className="text-sm font-medium">Arrival Time</div>
-                  <div className="text-lg font-bold">{formatTiming(flightInfo?.itineraries?.[0]?.segments?.[0]?.arrival?.at)}</div>
+                  <div className="text-lg font-bold">{formatTiming(flightInfo?.itineraries?.[0]?.segments[flightInfo?.itineraries?.[0]?.segments.length - 1]?.arrival?.at)}</div>
                 </div>
               </div>
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="grid gap-1">
                   <div className="text-sm font-medium"> Arrival Terminal</div>
-                  <div className="text-lg font-bold">{flightInfo?.itineraries?.[0]?.segments?.[0]?.arrival?.terminal}</div>
+                  <div className="text-lg font-bold">{flightInfo?.itineraries?.[0]?.segments[flightInfo?.itineraries?.[0]?.segments.length - 1]?.arrival.terminal}</div>
                 </div>   
                 <div className="grid gap-1">
                   <div className="text-sm font-medium">Stops</div>
-                  <div className="text-lg font-bold">{flightInfo?.itineraries?.[0]?.segments?.length}</div>
+                  <div className="text-lg font-bold">{flightInfo?.itineraries?.[0]?.segments?.length - 1}</div>
                 </div>
                 <div className="grid gap-1">
                   <div className="text-sm font-medium">Layover</div>
-                  <div className="text-lg font-bold">At Bombay of 2h 15m</div>
+                  <div className="text-lg font-bold">
+                   {flightInfo?.itineraries?.[0]?.segments?.length -1 > 0 ? (<p>At {flightInfo?.itineraries?.[0]?.segments?.[0]?.arrival?.iataCode} from {formatTiming(flightInfo?.itineraries?.[0]?.segments?.[0]?.arrival?.at)} to {formatTiming(flightInfo?.itineraries?.[0]?.segments?.[1]?.departure?.at)}</p>) : ('')}
+                   {flightInfo?.itineraries?.[0]?.segments?.length -1 > 1 ? (<p>At {flightInfo?.itineraries?.[0]?.segments?.[1]?.arrival?.iataCode} from {formatTiming(flightInfo?.itineraries?.[0]?.segments?.[1]?.arrival?.at)} to {formatTiming(flightInfo?.itineraries?.[0]?.segments?.[2]?.departure?.at)}</p>) : ('')}
+                   {flightInfo?.itineraries?.[0]?.segments?.length -1 > 2 ? (<p>At {flightInfo?.itineraries?.[0]?.segments?.[2]?.arrival?.iataCode} from {formatTiming(flightInfo?.itineraries?.[0]?.segments?.[2]?.arrival?.at)} to {formatTiming(flightInfo?.itineraries?.[0]?.segments?.[3]?.departure?.at)}</p>) : ('')}
+                  </div> 
                 </div>
               </div>
             </CardBody>
           </Card>
           <Button color="primary" size="lg" variant="shadow" className="font-bold">Book</Button>
         </div>
-     </section>  
+     </section>)}
     </div>
+  
   )
 }
