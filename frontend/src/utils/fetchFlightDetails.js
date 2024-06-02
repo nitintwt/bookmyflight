@@ -9,13 +9,13 @@ const formatDate = (date) => {
   return `${year}-${month}-${day}`
 }
 
-const fetchFlightDetails = async({departureAirport , arrivalAirport , departureDate , numberPassengers , userAccessToken})=>{
+const fetchFlightDetails = async({departureAirport , arrivalAirport , departureDate , numberOfPassengers , userAccessToken})=>{
   const params = {
     currencyCode: "INR",
     originLocationCode : departureAirport,
     destinationLocationCode : arrivalAirport,
     departureDate : formatDate(departureDate),
-    adults: numberPassengers,
+    adults: numberOfPassengers,
     max: '20',
     
   }

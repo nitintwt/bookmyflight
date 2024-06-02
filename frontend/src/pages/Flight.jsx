@@ -1,12 +1,12 @@
 import React from 'react'
-import FlightInput from '../components/Flights/FlightInput'
+import FlightSection from '../components/Flights/FlightsSection'
 
 
 function Flight() {
   return (
     <div>
       <div>
-        <FlightInput />
+        <FlightSection/>
       </div>
     </div>
   )

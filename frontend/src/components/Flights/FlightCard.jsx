@@ -5,23 +5,22 @@ import {Link} from 'react-router-dom'
 import { useSelector } from "react-redux";
 import formatTiming from '../../utils/formatTiming';
 import formatTotalTravelDuration from '../../utils/formatTotalTravelDuration';
+import fetchAirlineName from '../../utils/fetchAirlineName';
 
 const FlightCard = ({flightcode , airLine , price , from , fromTime , to , toTime , totalTravelTime , numberStops , stopOneDeparture , stopOneArrival , stopTwoDeparture , stopTwoArrival , stopThreeDeparture , stopThreeArrival}) => {
   const userAccessToken = useSelector((state)=> state?.user?.accessToken)
   const [airlineName, setAirlineName] = useState(null);
   
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchAirline = async ()=>{
       try {
-        const headers = { 'Authorization': `Bearer ${userAccessToken}` };
-        const params = { 'airlineCodes': `${airLine}` };
-        const response = await axios.get('https://test.api.amadeus.com/v1/reference-data/airlines?airlineCodes', { params, headers });
+        const response = await fetchAirlineName({ userAccessToken:{userAccessToken} , airLine:{airLine}})
         setAirlineName(response?.data?.data[0]?.businessName);
       } catch (error) {
-        console.log("error fetching airlines name ", error);
+        console.log("Error fetching airlines name" , error)
       }
     }
-    fetchData();
+    fetchAirline()
   }, [airLine]);
 
 
@@ -53,7 +52,7 @@ const FlightCard = ({flightcode , airLine , price , from , fromTime , to , toTim
         </div>
       </div>
       <div className="flex justify-end">
-        <Link to={`/flight-info/${flightcode}`}>Flight Details</Link>
+        <Button color="primary">{<Link to={`/flight-info/${flightcode}`}>Flight Details</Link>}</Button>
       </div>
     </div>
   );

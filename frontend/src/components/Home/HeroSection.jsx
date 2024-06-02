@@ -1,5 +1,3 @@
-
-
 export default function HeroSection() {
   return (
     <section className="relative w-full  overflow-hidden">

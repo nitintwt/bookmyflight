@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { Toaster, toast } from 'sonner'
+import {Button, ButtonGroup} from "@nextui-org/button";
 
 export default function SignupBox() {
   const [name , setName] = useState('')
@@ -22,7 +23,7 @@ export default function SignupBox() {
 
 
   return (
-    <div className="flex min-h-[100dvh] items-center justify-center bg-gray-950 px-4 py-12 ">
+    <div className="flex min-h-[100dvh] justify-center bg-gray-950 px-4 py-12 ">
       <div className="mx-auto w-full max-w-md space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-50">
@@ -91,13 +92,7 @@ export default function SignupBox() {
             </div>
           </div>
           <div>
-            <button
-              className="flex w-full justify-center rounded-md bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:bg-indigo-500 dark:hover:bg-indigo-400 dark:focus:ring-indigo-400"
-              
-              onClick={handleSubmit}
-            >
-              Sign up
-            </button>
+          <Button color="primary" size="lg" variant="shadow" className="font-bold" onClick={handleSubmit}>Sign up</Button>
           </div>
       </div>
       <Toaster position='bottom-center'/>

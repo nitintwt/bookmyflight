@@ -1,23 +1,19 @@
-import React, { Fragment, useContext, useState , useEffect } from 'react';
-import { Input } from "@nextui-org/input";
-import { Select, SelectItem } from "@nextui-org/react";
-import { DatePicker } from "@nextui-org/date-picker";
-import axios, { formToJSON } from 'axios';
-import generateAccessToken from '../../utils/generateAccessToken.js';
-import FlightCard from './FlightCard';
-import {Button} from "@nextui-org/button";
-import FlightsFilter from './FlightsFilter';
+import React, { Fragment, useState , useEffect } from 'react';
+import axios from 'axios';
+import FlightCard from './FlightCard.jsx';
+import FlightsFilter from './FlightsFilter.jsx';
 import {Slider} from "@nextui-org/react";
 import { useDispatch, useSelector } from "react-redux";
-import { setFlightData } from '../../store/FlightSlice';
+import { setFlightData } from '../../store/FlightSlice.js';
 import fetchFlightDetails from '../../utils/fetchFlightDetails.js';
 import formatTiming from '../../utils/formatTiming.js';
 import formatTotalTravelDuration from '../../utils/formatTotalTravelDuration.js';
+import FlightSearchInput from './FlightSearchInput.jsx';
 
-function FlightInput() {
+function FlightSection() {
   const [to, setTo] = useState('');
   const [from, setFrom] = useState('');
-  const [numberPassengers, setNumberOfPassengers] = useState(1);
+  const [numberOfPassengers, setNumberOfPassengers] = useState(1);
   const [trip, setTrip] = useState('one-way');
   const [departureDate, setDepartureDate] = useState(null);
   const [returnDate, setReturnDate] = useState(null);
@@ -45,9 +41,10 @@ function FlightInput() {
         const headers = { 'Authorization': `Bearer ${userAccessToken}` }
         const params = { 'subType': 'CITY,AIRPORT', 'keyword': keyword }
         try {
+
           const response = await axios.get('https://test.api.amadeus.com/v1/reference-data/locations', { headers, params })
           setAirportCode(response.data.data[0]?.iataCode)
-          //console.log(response.data.data[0]?.iataCode)
+          
         } catch (error) {
           console.error('Error fetching airport data', error)
         }
@@ -71,7 +68,7 @@ function FlightInput() {
   }, [from, to])
 
   const handleSearch = async ()=>{
-    dispatch (setFlightData({departureAirport , arrivalAirport , numberPassengers ,departureDate}))
+    dispatch (setFlightData({departureAirport , arrivalAirport , numberOfPassengers ,departureDate}))
     setIsLoading(true)
     try {
       const data = await fetchFlightDetails(
@@ -79,7 +76,7 @@ function FlightInput() {
           departureAirport: flightData?.departureAirport,
           arrivalAirport: flightData?.arrivalAirport,
           departureDate: flightData?.departureDate,
-          numberPassengers: flightData?.numberPassengers,
+          numberOfPassengers: flightData?.numberOfPassengers,
           userAccessToken:userAccessToken,
         })
 
@@ -93,34 +90,23 @@ function FlightInput() {
 
   return (
     <Fragment>
-      <div className='flex flex-col  p-5 bg-white m-5 border rounded-3xl '>
-        <div className='flex'>
-          <Select label='One way or round trip' variant='bordered' className='max-w-xs mr-5' size='sm' value={trip} onChange={(e)=> setTrip(e.target.value)}>
-            <SelectItem key="one-way" value='one-way'>One way</SelectItem>
-            <SelectItem key='round-trip' value='round-trip'>Round Trip</SelectItem>
-          </Select>
 
-          <Select label='Number of passengers' className='max-w-xs ' variant='bordered' size='sm' value={numberPassengers} onChange={(e)=> setNumberOfPassengers(e.target.value)}>
-            <SelectItem key="1" value="1">1 Passenger</SelectItem>
-            <SelectItem key='2' value="2">2 Passengers</SelectItem>
-            <SelectItem key="3" value="3">3 Passengers</SelectItem>
-            <SelectItem key='4' value="4">4 Passengers</SelectItem>
-            <SelectItem key="5" value="5">5 Passengers</SelectItem>
-            <SelectItem key='6' value="6">6 Passengers</SelectItem>
-          </Select>
-        </div>
-        <div className="flex w-full flex-wrap md:flex-nowrap gap-4  mt-5">
-          <Input type="text" label="From" variant='bordered' value={from} onChange={(e) => setFrom(e.target.value)} />
-          <Input type="text" label="To" variant='bordered' value={to} onChange={(e) => setTo(e.target.value)} />
-          <DatePicker label="Departure Date" variant='bordered' className="max-w-[284px]" value={departureDate} onChange={setDepartureDate} />
-          {trip === 'round-trip' && (
-            <DatePicker label="Return Date" variant='bordered' className="max-w-[284px]" value={returnDate} onChange={setReturnDate} />
-          )}
-        </div>
-        <div className='mt-5'> 
-          {isLoading ? (<Button color='primary' isLoading>Loading</Button>): (<Button color='primary' onClick={handleSearch}>Search</Button>)}
-        </div>
-      </div>
+      <FlightSearchInput 
+        trip={trip}
+        setTrip={setTrip}
+        numberOfPassengers={numberOfPassengers}
+        setNumberOfPassengers={setNumberOfPassengers}
+        from={from}
+        setFrom={setFrom}
+        to={to}
+        setTo={setTo}
+        departureDate={departureDate}
+        setDepartureDate={setDepartureDate}
+        returnDate={returnDate}
+        setReturnDate={setReturnDate}
+        isLoading={isLoading}
+        handleSearch={handleSearch}  />
+
       <div className='p-2'>
         <Slider 
             label="Price less than" 
@@ -149,6 +135,7 @@ function FlightInput() {
           isFastest={isFastest}
           setIsFastest={setIsFastest} />
         </div>
+
           { flights.length >0 ? (
             flights.slice().sort( 
               (a , b)=>{
@@ -193,4 +180,4 @@ function FlightInput() {
   )
 }
 
-export default FlightInput
+export default FlightSection

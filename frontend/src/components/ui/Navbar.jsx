@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { useCookies } from 'react-cookie';
 import UserAvatar from './UserAvatar';
+import { Button } from '@nextui-org/react';
 
 function Navbar() {
   const [cookies, setCookie] = useCookies();
@@ -25,12 +26,15 @@ function Navbar() {
     <div>
      <UserAvatar />
     </div>
-  ) : (<NavLink to="/signup"  
-    style={({ isActive }) => {
-    return isActive ? { color: "black" } : {};}}
-    className='text-white font-bold'>
+  ) 
+  : 
+  (
+    <Button color="primary" variant="ghost" size='lg'>
+     <NavLink to="/signup"  style={({ isActive }) => {return isActive ? { color: "black" } : {};}} className='text-white font-bold'>
       Login
-    </NavLink>)}
+     </NavLink>
+    </Button>
+  )}
   </header>
   )
 }

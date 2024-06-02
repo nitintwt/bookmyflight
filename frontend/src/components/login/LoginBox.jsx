@@ -2,6 +2,8 @@ import { useState , useEffect, useContext } from "react"
 import { useNavigate } from "react-router-dom"
 import { Toaster, toast } from "sonner"
 import axios from 'axios'
+import {Button, ButtonGroup} from "@nextui-org/button";
+
 
 export default function LoginBox() {
   const [email , setEmail]= useState('')
@@ -63,17 +65,11 @@ export default function LoginBox() {
                 onChange={(e)=> setPassword(e.target.value)}
               />
             </div>
+            
           </div>
-          <div>
-            <button
-              className="flex w-full justify-center rounded-md bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:bg-indigo-500 dark:hover:bg-indigo-400 dark:focus:ring-indigo-400"
-              type="submit"
-              onClick={handleSubmit}
-            >
-              Sign up
-            </button>
-          </div>
+          <Button color="primary" size="lg" variant="shadow" className=" w-full" onClick={handleSubmit}>Login</Button>
       </div>
+      
       <Toaster position='bottom-center'/>
     </div>
   )
