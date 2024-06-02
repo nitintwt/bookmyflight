@@ -1,12 +1,17 @@
-import React from 'react'
-import AirportResult from './AirportResult'
+import React from 'react';
+import AirportResult from './AirportResult';
 
-function AirportResultLists({airportData}) {
+function AirportResultLists({ airportData }) {
   return (
     <div>
-      {airportData.map((airport)=>(<AirportResult city={airport?.data?.name} airportCode={airport?.iataCode}/>))}
+      {airportData.map((airport) => (
+        <AirportResult
+          city={airport?.data?.name}
+          airportCode={airport?.iataCode}
+        />
+      ))}
     </div>
-  )
+  );
 }
 
-export default AirportResultLists
+export default AirportResultLists;

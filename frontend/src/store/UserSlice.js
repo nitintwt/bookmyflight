@@ -1,19 +1,19 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  accessToken: null
-}
+  accessToken: null,
+};
 
 const userSlice = createSlice({
-  name: "user1",
+  name: 'user1',
   initialState,
-  reducers:{
-    assignAccessToken:(state , action)=>{
-      state.accessToken = action.payload
-    }
-  }
-})
+  reducers: {
+    assignAccessToken: (state, action) => {
+      state.accessToken = action.payload;
+    },
+  },
+});
 
-export const { assignAccessToken} = userSlice.actions
+export const { assignAccessToken } = userSlice.actions;
 
-export default userSlice.reducer
+export default userSlice.reducer;

@@ -7,9 +7,10 @@ export default function HeroSection() {
           Find Your Next Adventure
         </h1>
         <p className="max-w-[600px] text-lg sm:text-xl text-gray-200">
-          Search and book flights to destinations around the world with our easy-to-use platform.
+          Search and book flights to destinations around the world with our
+          easy-to-use platform.
         </p>
       </div>
     </section>
-  )
+  );
 }

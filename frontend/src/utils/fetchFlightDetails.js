@@ -1,31 +1,35 @@
-
-import axios from "axios"
+import axios from 'axios';
 
 const formatDate = (date) => {
-  const year = date?.year
-  const month = date?.month < 10 ? `0${date?.month}` : date?.month
-  const day = date?.day < 10 ? `0${date?.day}` : date?.day
+  const year = date?.year;
+  const month = date?.month < 10 ? `0${date?.month}` : date?.month;
+  const day = date?.day < 10 ? `0${date?.day}` : date?.day;
 
-  return `${year}-${month}-${day}`
-}
+  return `${year}-${month}-${day}`;
+};
 
-const fetchFlightDetails = async({departureAirport , arrivalAirport , departureDate , numberOfPassengers , userAccessToken})=>{
+const fetchFlightDetails = async ({
+  departureAirport,
+  arrivalAirport,
+  departureDate,
+  numberOfPassengers,
+  userAccessToken,
+}) => {
   const params = {
-    currencyCode: "INR",
-    originLocationCode : departureAirport,
-    destinationLocationCode : arrivalAirport,
-    departureDate : formatDate(departureDate),
+    currencyCode: 'INR',
+    originLocationCode: departureAirport,
+    destinationLocationCode: arrivalAirport,
+    departureDate: formatDate(departureDate),
     adults: numberOfPassengers,
     max: '20',
-    
-  }
-  const headers = {'Authorization' :`Bearer ${userAccessToken}`}
+  };
+  const headers = { Authorization: `Bearer ${userAccessToken}` };
   try {
-    const data = await axios.get('https://test.api.amadeus.com/v2/shopping/flight-offers', {params , headers})
-    return data
+    const data = await axios.get('https://test.api.amadeus.com/v2/shopping/flight-offers',{ params, headers });
+    return data;
   } catch (error) {
-    throw error
+    throw error;
   }
-}
+};
 
-export default fetchFlightDetails
+export default fetchFlightDetails;

@@ -1,14 +1,14 @@
-import React from 'react'
-import Navbar from './components/ui/Navbar'
-import { Outlet } from 'react-router-dom'
+import React from 'react';
+import Navbar from './components/ui/Navbar';
+import { Outlet } from 'react-router-dom';
 
 function Layout() {
   return (
     <>
-      <Navbar/>
-      <Outlet/>
+      <Navbar />
+      <Outlet />
     </>
-  )
+  );
 }
 
-export default Layout
+export default Layout;

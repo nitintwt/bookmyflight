@@ -1,12 +1,12 @@
-import React from 'react'
-import {Input} from "@nextui-org/react";
+import React from 'react';
+import { Input } from '@nextui-org/react';
 
-function AirportResult({city , airportCode}) {
+function AirportResult({ city, airportCode }) {
   return (
     <div>
-      <p className='text-black border'>{city}</p>
+      <p className="text-black border">{city}</p>
     </div>
-  )
+  );
 }
 
-export default AirportResult
+export default AirportResult;

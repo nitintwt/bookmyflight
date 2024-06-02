@@ -1,15 +1,14 @@
-import React from 'react'
-import FlightSection from '../components/Flights/FlightsSection'
-
+import React from 'react';
+import FlightSection from '../components/Flights/FlightsSection';
 
 function Flight() {
   return (
     <div>
       <div>
-        <FlightSection/>
+        <FlightSection />
       </div>
     </div>
-  )
+  );
 }
 
-export default Flight
+export default Flight;

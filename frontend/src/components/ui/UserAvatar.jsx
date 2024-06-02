@@ -1,23 +1,36 @@
-import React, { useContext, useEffect } from "react";
-import {Navbar, NavbarBrand, NavbarContent, NavbarItem, Link, DropdownItem, DropdownTrigger, Dropdown, DropdownMenu, Avatar} from "@nextui-org/react";
-import { useCookies } from "react-cookie";
-import axios from "axios";
+import React, { useContext, useEffect } from 'react';
+import {
+  Navbar,
+  NavbarBrand,
+  NavbarContent,
+  NavbarItem,
+  Link,
+  DropdownItem,
+  DropdownTrigger,
+  Dropdown,
+  DropdownMenu,
+  Avatar,
+} from '@nextui-org/react';
+import { useCookies } from 'react-cookie';
+import axios from 'axios';
 
 export default function UserAvatar() {
-  const [cookies] = useCookies(["accessToken", "refreshToken", "user"]);
+  const [cookies] = useCookies(['accessToken', 'refreshToken', 'user']);
 
-  const handleLogout = async ()=>{
+  const handleLogout = async () => {
     try {
-      const loggedOut = await axios.post('/api/v1/users/logout' , cookies.user._id)
-      console.log(loggedOut)
+      const loggedOut = await axios.post(
+        '/api/v1/users/logout',
+        cookies.user._id
+      );
+      console.log(loggedOut);
     } catch (error) {
-      console.log("error:" , error)
+      console.log('error:', error);
     }
-  }
-
+  };
 
   return (
-    <Navbar className="dark:bg-gray-950" >
+    <Navbar className="dark:bg-gray-950">
       <NavbarContent as="div" justify="end">
         <Dropdown placement="bottom-end" className="dark">
           <DropdownTrigger>
@@ -36,11 +49,24 @@ export default function UserAvatar() {
               <p className="font-semibold">Signed in as</p>
               <p className="font-semibold">{cookies?.user?.email}</p>
             </DropdownItem>
-            <DropdownItem key="settings" className="text-white">My Bookings</DropdownItem>
-            <DropdownItem key="team_settings" className="text-white">Payment</DropdownItem>
-            <DropdownItem key="analytics" className="text-white">Rewards</DropdownItem>
-            <DropdownItem key="help_and_feedback" className="text-white">Help & Feedback</DropdownItem>
-            <DropdownItem key="logout" color="danger" className="text-white" onClick={handleLogout}>
+            <DropdownItem key="settings" className="text-white">
+              My Bookings
+            </DropdownItem>
+            <DropdownItem key="team_settings" className="text-white">
+              Payment
+            </DropdownItem>
+            <DropdownItem key="analytics" className="text-white">
+              Rewards
+            </DropdownItem>
+            <DropdownItem key="help_and_feedback" className="text-white">
+              Help & Feedback
+            </DropdownItem>
+            <DropdownItem
+              key="logout"
+              color="danger"
+              className="text-white"
+              onClick={handleLogout}
+            >
               Log Out
             </DropdownItem>
           </DropdownMenu>
