@@ -37,7 +37,7 @@ function FlightSection() {
   useEffect(() => {
     const handler = setTimeout(() => {
       const fetchAirportData = async (keyword, setAirportCode) => {
-        const headers = { Authorization: `Bearer ${userAccessToken}` };
+        const headers = { 'Authorization' : `Bearer ${userAccessToken}` };
         const params = { subType: 'CITY,AIRPORT', keyword: keyword };
         try {
           const response = await axios.get('https://test.api.amadeus.com/v1/reference-data/locations',{ headers, params });

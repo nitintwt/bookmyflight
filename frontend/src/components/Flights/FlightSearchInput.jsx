@@ -35,9 +35,9 @@ function FlightSearchInput({
           <SelectItem key="one-way" value="one-way">
             One way
           </SelectItem>
-          <SelectItem key="round-trip" value="round-trip">
+          {/*<SelectItem key="round-trip" value="round-trip">
             Round Trip
-          </SelectItem>
+          </SelectItem>*/}
         </Select>
 
         <Select

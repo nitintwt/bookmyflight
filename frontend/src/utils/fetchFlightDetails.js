@@ -23,7 +23,7 @@ const fetchFlightDetails = async ({
     adults: numberOfPassengers,
     max: '20',
   };
-  const headers = { Authorization: `Bearer ${userAccessToken}` };
+  const headers = { 'Authorization' : `Bearer ${userAccessToken}` };
   try {
     const data = await axios.get('https://test.api.amadeus.com/v2/shopping/flight-offers',{ params, headers });
     return data;

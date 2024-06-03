@@ -44,7 +44,7 @@ export default function FlightInfoPage() {
     setTimeout(() => {
       const fetchData = async () => {
         try {
-          const headers = { Authorization: `Bearer ${userAccessToken}` };
+          const headers = { 'Authorization' : `Bearer ${userAccessToken}` };
           const params = {airlineCodes: `${flightInfo?.validatingAirlineCodes?.[0]}`,};
           const response = await axios.get('https://test.api.amadeus.com/v1/reference-data/airlines?airlineCodes',{ params, headers });
           setAirlineName(response?.data?.data[0]?.businessName);

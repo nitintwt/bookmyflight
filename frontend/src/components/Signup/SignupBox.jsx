@@ -2,13 +2,12 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Toaster, toast } from 'sonner';
-import { Button, ButtonGroup } from '@nextui-org/button';
+import { Button } from '@nextui-org/button';
 
 export default function SignupBox() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [register, setRegister] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async () => {
