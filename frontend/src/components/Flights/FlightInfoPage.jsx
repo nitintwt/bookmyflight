@@ -24,11 +24,11 @@ export default function FlightInfoPage() {
           departureAirport: flightData?.departureAirport,
           arrivalAirport: flightData?.arrivalAirport,
           departureDate: flightData?.departureDate,
-          numberPassengers: flightData?.numberPassengers,
+          numberOfPassengers: flightData?.numberOfPassengers,
           userAccessToken: userAccessToken,
         });
-        const dataArray = data?.data?.data;
-        const myFlight = dataArray?.filter((flight) => {
+        const dataArray = await data?.data?.data;
+        const myFlight = await dataArray?.filter((flight) => {
           return flight?.id === id;
         });
         setFlightInfo(myFlight[0]);
@@ -128,7 +128,7 @@ export default function FlightInfoPage() {
               <div className="grid gap-1">
                 <div className="text-sm font-medium">Passengers</div>
                 <div className="text-lg font-bold">
-                  {flightData?.numberPassengers}
+                  {flightData?.numberOfPassengers}
                 </div>
               </div>
               <div className="grid gap-1">

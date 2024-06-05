@@ -9,14 +9,9 @@ import fetchFlightDetails from '../../utils/fetchFlightDetails.js';
 import formatTiming from '../../utils/formatTiming.js';
 import formatTotalTravelDuration from '../../utils/formatTotalTravelDuration.js';
 import FlightSearchInput from './FlightSearchInput.jsx';
+import { useForm } from 'react-hook-form';
 
 function FlightSection() {
-  const [to, setTo] = useState('');
-  const [from, setFrom] = useState('');
-  const [numberOfPassengers, setNumberOfPassengers] = useState(1);
-  const [trip, setTrip] = useState('one-way');
-  const [departureDate, setDepartureDate] = useState(null);
-  const [returnDate, setReturnDate] = useState(null);
   const [flights, setFlights] = useState([]);
   const [departureAirport, setDepartureAirport] = useState('');
   const [arrivalAirport, setArrivalAirport] = useState('');
@@ -28,83 +23,55 @@ function FlightSection() {
   const [isNightDeparture, setIsNightDeparture] = useState(false);
   const [isFastest, setIsFastest] = useState(false);
   const [priceRange, setPriceRange] = useState(100000);
+
   const dispatch = useDispatch();
+
 
   const userAccessToken = useSelector((state) => state?.user?.accessToken);
   const flightData = useSelector((state) => state?.flight?.flightData);
+  
 
-  // debouncing. Whenever the user was typing city name , the api was called with every letter , so we delayed the API call by 500ms.
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      const fetchAirportData = async (keyword, setAirportCode) => {
-        const headers = { 'Authorization' : `Bearer ${userAccessToken}` };
-        const params = { subType: 'CITY,AIRPORT', keyword: keyword };
-        try {
-          const response = await axios.get('https://test.api.amadeus.com/v1/reference-data/locations',{ headers, params });
-          setAirportCode(response.data.data[0]?.iataCode);
-        } catch (error) {
-          console.error('Error fetching airport data', error);
-        }
-      };
-
-      if (from) {
-        fetchAirportData(from, setDepartureAirport);
-      }
-
-      if (to) {
-        fetchAirportData(to, setArrivalAirport);
-      }
-    }, 500); // 500ms debounce delay
-
-    // When setTimeout is used in a useEffect hook, it schedules a delayed task, here it is delayed by 500ms.
-    // If dependencies change before the delay ends, multiple timeouts and API calls can occur.
-    // The cleanup function clears pending timeouts, ensuring only the latest input triggers the API call after the debounce delay.
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [from, to]);
-
-  const handleSearch = useCallback(async () => {
-    dispatch(
-      setFlightData({
-        departureAirport,
-        arrivalAirport,
-        numberOfPassengers,
-        departureDate,
-      })
-    );
-    setIsLoading(true);
+  const fetchAirportData = async (keyword, setAirportCode) => {
+    const headers = { 'Authorization' : `Bearer ${userAccessToken}` };
+    const params = { subType: 'CITY,AIRPORT', keyword: keyword };
     try {
-      const data = await fetchFlightDetails({
-        departureAirport: flightData?.departureAirport,
-        arrivalAirport: flightData?.arrivalAirport,
-        departureDate: flightData?.departureDate,
-        numberOfPassengers: flightData?.numberOfPassengers,
+      const response = await axios.get('https://test.api.amadeus.com/v1/reference-data/locations',{ headers, params });
+      setAirportCode(response.data.data[0]?.iataCode);
+    } catch (error) {
+      console.error('Error fetching airport data', error);
+    }
+  };
+
+  const handleSearch = useCallback(async (data) => {
+    setIsLoading(true);
+    const { numberOfPassengers, departureDate, from, to } = data;
+  
+    try {
+      // Fetch both departure and arrival airports concurrently
+      const [departureAirportCode, arrivalAirportCode] = await Promise.all([
+        fetchAirportData(from),
+        fetchAirportData(to)
+      ]);
+  
+      const flightDetails = await fetchFlightDetails({
+        departureAirport: departureAirportCode,
+        arrivalAirport: arrivalAirportCode,
+        departureDate: departureDate,
+        numberOfPassengers: numberOfPassengers,
         userAccessToken: userAccessToken,
       });
-
-      setFlights(data?.data?.data);
+  
+      setFlights(flightDetails?.data?.data);
       setIsLoading(false);
     } catch (error) {
       console.log('Error while fetching flight data ', error);
+      setIsLoading(false);
     }
-  }, [departureAirport, arrivalAirport, numberOfPassengers, departureDate]);
+  }, []);
 
   return (
     <Fragment>
       <FlightSearchInput
-        trip={trip}
-        setTrip={setTrip}
-        numberOfPassengers={numberOfPassengers}
-        setNumberOfPassengers={setNumberOfPassengers}
-        from={from}
-        setFrom={setFrom}
-        to={to}
-        setTo={setTo}
-        departureDate={departureDate}
-        setDepartureDate={setDepartureDate}
-        returnDate={returnDate}
-        setReturnDate={setReturnDate}
         isLoading={isLoading}
         handleSearch={handleSearch}
       />

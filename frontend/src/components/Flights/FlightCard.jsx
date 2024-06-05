@@ -31,8 +31,8 @@ const FlightCard = ({
     const fetchAirline = async () => {
       try {
         const response = await fetchAirlineName({
-          userAccessToken: { userAccessToken },
-          airLine: { airLine },
+          userAccessToken:  userAccessToken ,
+          airLine:  airLine ,
         });
         setAirlineName(response?.data?.data[0]?.businessName);
       } catch (error) {
