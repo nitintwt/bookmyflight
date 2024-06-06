@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect, useCallback } from 'react';
+import React, { Fragment, useState, useEffect, useCallback , useMemo } from 'react';
 import axios from 'axios';
 import FlightCard from './FlightCard.jsx';
 import FlightsFilter from './FlightsFilter.jsx';
@@ -74,14 +74,8 @@ function FlightSection() {
   
   const handleSearch = useCallback(async () => {
     setIsLoading(true);
-    dispatch(
-      setFlightData({
-        departureAirport,
-        arrivalAirport,
-        numberOfPassengers,
-        departureDate,
-      })
-    );
+    dispatch(setFlightData({departureAirport,arrivalAirport,numberOfPassengers,departureDate}));
+
     try {
       const data = await fetchFlightDetails({
         departureAirport: flightData?.departureAirport,
@@ -89,7 +83,6 @@ function FlightSection() {
         departureDate: flightData?.departureDate,
         numberOfPassengers: flightData?.numberOfPassengers,
         userAccessToken:userAccessToken
-
       })
       setFlights(data?.data?.data);
     } catch (error) {
@@ -104,6 +97,19 @@ function FlightSection() {
       setIsLoading(false)
     }
   }, [departureAirport, arrivalAirport, numberOfPassengers, departureDate , dispatch , userAccessToken]);
+
+  // useMemo memoizes the filtering and sorting result 
+  // it helps optimize performance by avoiding unnecessary computations
+  const filteredFlights = useMemo(() => {
+    return flights
+      .filter((flight) => !isNonStop || flight?.itineraries[0]?.segments?.length === 1)
+      .filter((flight) => parseInt(flight?.price?.total) < priceRange)
+      .filter((flight) => !isMorningDeparture || parseInt(formatTiming(flight.itineraries[0].segments[0].departure.at)) < 12)
+      .filter((flight) => !isAfternoonDeparture || (parseInt(formatTiming(flight.itineraries[0].segments[0].departure.at)) >= 12 && parseInt(formatTiming(flight.itineraries[0].segments[0].departure.at)) <= 16))
+      .filter((flight) => !isNightDeparture || (parseInt(formatTiming(flight.itineraries[0].segments[0].departure.at)) >= 19 && parseInt(formatTiming(flight.itineraries[0].segments[0].departure.at)) <= 23))
+      .filter((flight) => !isOneStop || flight?.itineraries[0]?.segments?.length === 2)
+      .sort((a, b) => isFastest ? parseFloat(formatTotalTravelDuration(a.itineraries[0]?.duration)) - parseFloat(formatTotalTravelDuration(b.itineraries[0]?.duration)) : 0);
+  }, [flights, isNonStop, isOneStop, isMorningDeparture, isAfternoonDeparture, isNightDeparture, isFastest, priceRange]);
 
   return (
     <Fragment>
@@ -154,89 +160,25 @@ function FlightSection() {
             setIsFastest={setIsFastest}
           />
         </div>
-        { flights
-          .slice()
-          .sort((a, b) => {
-            if (isFastest) {
-              return (
-                parseFloat(
-                  formatTotalTravelDuration(a.itineraries[0]?.duration)
-                ) -
-                parseFloat(
-                  formatTotalTravelDuration(b.itineraries[0]?.duration)
-                )
-              );
-            }
-          })
-          .filter((flight) => {
-            return isNonStop
-              ? flight?.itineraries[0]?.segments?.length === 1
-              : flight;
-          })
-          .filter((flight) => {
-            return parseInt(flight?.price?.total) < `${priceRange}`;
-          })
-          .filter((flight) => {
-            return isMorningDeparture
-              ? parseInt(
-                  formatTiming(
-                    flight.itineraries[0].segments[0].departure.at
-                  )
-                ) < 12
-              : flight;
-          })
-          .filter((flight) => {
-            return isAfternoonDeparture
-              ? parseInt(
-                  formatTiming(
-                    flight.itineraries[0].segments[0].departure.at
-                  )
-                ) >= 12 &&
-                  parseInt(
-                    formatTiming(
-                      flight.itineraries[0].segments[0].departure.at
-                    )
-                  ) <= 16
-              : flight;
-          })
-          .filter((flight) => {
-            return isNightDeparture
-              ? parseInt(
-                  formatTiming(
-                    flight.itineraries[0].segments[0].departure.at
-                  )
-                ) >= 19 &&
-                  parseInt(
-                    formatTiming(
-                      flight.itineraries[0].segments[0].departure.at
-                    )
-                  ) <= 23
-              : flight;
-          })
-          .filter((flight) => {
-            return isOneStop
-              ? flight?.itineraries[0]?.segments?.length === 2
-              : flight;
-          })
-          .map((flight) => (
-            <FlightCard
-              key={flight?.id}
-              flightcode={flight?.id}
-              airLine={flight?.validatingAirlineCodes[0]}
-              price={flight?.price?.total}
-              from={flight?.itineraries[0]?.segments[0]?.departure?.iataCode}
-              fromTime={flight?.itineraries[0]?.segments[0]?.departure?.at}
-              to={flight?.itineraries[0]?.segments[flight?.itineraries[0]?.segments.length - 1]?.arrival?.iataCode}
-              toTime={flight?.itineraries[0]?.segments[flight?.itineraries[0]?.segments.length - 1]?.arrival?.at}
-              numberStops={flight?.itineraries[0]?.segments?.length}
-              totalTravelTime={flight?.itineraries[0]?.duration}
-              stopOneDeparture={flight?.itineraries[0]?.segments[0]?.departure?.iataCode}
-              stopOneArrival={flight?.itineraries[0]?.segments[0]?.arrival?.iataCode}
-              stopTwoDeparture={flight?.itineraries[0]?.segments[1]?.departure?.iataCode}
-              stopTwoArrival={flight?.itineraries[0]?.segments[1]?.arrival?.iataCode}
-              stopThreeDeparture={flight?.itineraries[0]?.segments[2]?.departure?.iataCode}
-              stopThreeArrival={flight?.itineraries[0]?.segments[2]?.arrival?.iataCode}
-            />
+        {filteredFlights.map((flight) => (
+          <FlightCard
+            key={flight?.id}
+            flightcode={flight?.id}
+            airLine={flight?.validatingAirlineCodes[0]}
+            price={flight?.price?.total}
+            from={flight?.itineraries[0]?.segments[0]?.departure?.iataCode}
+            fromTime={flight?.itineraries[0]?.segments[0]?.departure?.at}
+            to={flight?.itineraries[0]?.segments[flight?.itineraries[0]?.segments.length - 1]?.arrival?.iataCode}
+            toTime={flight?.itineraries[0]?.segments[flight?.itineraries[0]?.segments.length - 1]?.arrival?.at}
+            numberStops={flight?.itineraries[0]?.segments?.length}
+            totalTravelTime={flight?.itineraries[0]?.duration}
+            stopOneDeparture={flight?.itineraries[0]?.segments[0]?.departure?.iataCode}
+            stopOneArrival={flight?.itineraries[0]?.segments[0]?.arrival?.iataCode}
+            stopTwoDeparture={flight?.itineraries[0]?.segments[1]?.departure?.iataCode}
+            stopTwoArrival={flight?.itineraries[0]?.segments[1]?.arrival?.iataCode}
+            stopThreeDeparture={flight?.itineraries[0]?.segments[2]?.departure?.iataCode}
+            stopThreeArrival={flight?.itineraries[0]?.segments[2]?.arrival?.iataCode}
+          />
         ))}
       </div>}
       <Toaster position="bottom-center" />
