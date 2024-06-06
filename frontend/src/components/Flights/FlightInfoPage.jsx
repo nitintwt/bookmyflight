@@ -7,6 +7,7 @@ import fetchFlightDetails from '../../utils/fetchFlightDetails';
 import { useParams } from 'react-router-dom';
 import formatTiming from '../../utils/formatTiming';
 import FlightInfoLoadingSkeleton from '../ui/FlightInfoLoadingSkeleton';
+import PassengerDetailsInputBox from '../Passenger/PassengersDetailsInputBox';
 
 export default function FlightInfoPage() {
   const flightData = useSelector((state) => state?.flight?.flightData);
@@ -311,14 +312,7 @@ export default function FlightInfoPage() {
                 </div>
               </CardBody>
             </Card>
-            <Button
-              color="primary"
-              size="lg"
-              variant="shadow"
-              className="font-bold"
-            >
-              Book
-            </Button>
+            <PassengerDetailsInputBox/>
           </div>
         </section>
       )}

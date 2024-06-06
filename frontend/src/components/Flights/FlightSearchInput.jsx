@@ -2,10 +2,7 @@ import { Input } from '@nextui-org/input';
 import { Select, SelectItem } from '@nextui-org/react';
 import { DatePicker } from '@nextui-org/date-picker';
 import { Button } from '@nextui-org/button';
-import {useForm} from 'react-hook-form'
 
-import React from 'react';
-import CityInput from '../ui/CityInput';
 
 function FlightSearchInput({  trip,
   setTrip,

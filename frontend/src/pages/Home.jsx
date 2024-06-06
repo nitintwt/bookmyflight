@@ -5,6 +5,7 @@ import generateAccessToken from '../utils/generateAccessToken.js';
 import Flight from './Flight';
 import { useDispatch } from 'react-redux';
 import { assignAccessToken } from '../store/UserSlice';
+import FlightSection from '../components/Flights/FlightsSection.jsx';
 
 function Home() {
   const dispatch = useDispatch();
@@ -24,7 +25,7 @@ function Home() {
         <HeroSection />
       </div>
       <div>
-        <Flight />
+        <FlightSection/>
       </div>
     </div>
   );

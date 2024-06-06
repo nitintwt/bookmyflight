@@ -9,7 +9,7 @@ import fetchFlightDetails from '../../utils/fetchFlightDetails.js';
 import formatTiming from '../../utils/formatTiming.js';
 import formatTotalTravelDuration from '../../utils/formatTotalTravelDuration.js';
 import FlightSearchInput from './FlightSearchInput.jsx';
-import { useForm } from 'react-hook-form';
+import { Toaster, toast } from 'sonner';
 
 function FlightSection() {
   const [to, setTo] = useState('');
@@ -43,8 +43,10 @@ function FlightSection() {
           const params = { subType: 'CITY,AIRPORT', keyword: keyword };
           try {
             const response = await axios.get('https://test.api.amadeus.com/v1/reference-data/locations',{ headers, params });
+            console.log(response.data.data[0]?.iataCode)
             setAirportCode(response.data.data[0]?.iataCode);
           } catch (error) {
+            toast.warning('Please put a valid city name')
             console.error('Error fetching airport data', error);
           }
         };
@@ -89,8 +91,9 @@ function FlightSection() {
       setFlights(data?.data?.data);
       setIsLoading(false);
     } catch (error) {
-      console.log('Error while fetching flight data ', error);
+      console.log('Error while fetching flight data ', error?.response?.data?.errors?.[0].detail);
       setIsLoading(false);
+      toast.warning( error?.response?.data?.errors?.[0].detail)
     }
   }, [departureAirport, arrivalAirport, numberOfPassengers, departureDate]);
 
@@ -113,6 +116,7 @@ function FlightSection() {
         handleSearch={handleSearch}
       />
 
+      {flights.length > 0 && 
       <div className="p-2">
         <Slider
           label="Price less than"
@@ -229,7 +233,8 @@ function FlightSection() {
                 />
               ))
           : ''}
-      </div>
+      </div>}
+      <Toaster position="bottom-center" />
     </Fragment>
   );
 }
