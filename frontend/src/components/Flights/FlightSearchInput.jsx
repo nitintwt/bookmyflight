@@ -5,23 +5,33 @@ import { Button } from '@nextui-org/button';
 import {useForm} from 'react-hook-form'
 
 import React from 'react';
+import CityInput from '../ui/CityInput';
 
-function FlightSearchInput({isLoading,handleSearch }) {
-  const { register , handleSubmit , setValue}= useForm()
-
-  const handleDateChange = (field, value) => {
-    setValue(field, value);
-  };
+function FlightSearchInput({  trip,
+  setTrip,
+  numberOfPassengers,
+  setNumberOfPassengers,
+  from,
+  setFrom,
+  to,
+  setTo,
+  departureDate,
+  setDepartureDate,
+  returnDate,
+  setReturnDate,
+  isLoading,
+  handleSearch, }) {
 
   return (
-    <form onSubmit={handleSubmit(handleSearch)} className="flex flex-col  p-5 bg-white m-5 border rounded-3xl ">
+    <div className="flex flex-col  p-5 bg-white m-5 border rounded-3xl ">
       <div className="flex">
         <Select
           label="One way or round trip"
           variant="bordered"
           className="max-w-xs mr-5"
           size="sm"
-          {...register('trip')}
+          value={trip}
+          onChange={(e) => setTrip(e.target.value)}
         >
           <SelectItem key="one-way" value="one-way">
             One way
@@ -36,7 +46,9 @@ function FlightSearchInput({isLoading,handleSearch }) {
           className="max-w-xs "
           variant="bordered"
           size="sm"
-          {...register('numberOfPassengers')}
+          value={numberOfPassengers}
+          onChange={(e) => setNumberOfPassengers(e.target.value)}
+          
         >
           <SelectItem key="1" value="1">
             1 Passenger
@@ -63,26 +75,34 @@ function FlightSearchInput({isLoading,handleSearch }) {
           type="text"
           label="From"
           variant="bordered"
-          {...register('from')}
+          value={from}
+          onChange={(e) => setFrom(e.target.value)}
+          
         />
         <Input
           type="text"
           label="To"
           variant="bordered"
-          {...register('to')}
+          value={to}
+          onChange={(e) => setTo(e.target.value)}
+          
         />
         <DatePicker
           label="Departure Date"
           variant="bordered"
           className="max-w-[284px]"
-          onChange={(date)=> handleDateChange('departureDate' , date)}
+          value={departureDate}
+          onChange={setDepartureDate}
+          
         />
         {/*trip === 'round-trip' && (
           <DatePicker
             label="Return Date"
             variant="bordered"
             className="max-w-[284px]"
-            {...register('returnDate')}
+            value={returnDate}
+            onChange={setReturnDate}
+            
           />
         )*/}
       </div>
@@ -92,12 +112,12 @@ function FlightSearchInput({isLoading,handleSearch }) {
             Loading
           </Button>
         ) : (
-          <Button color="primary" type='submit'>
+          <Button color="primary"  onClick={handleSearch}>
             Search
           </Button>
         )}
       </div>
-    </form>
+    </div>
   );
 }
 
