@@ -27,6 +27,8 @@ const FlightCard = ({
   const userAccessToken = useSelector((state) => state?.user?.accessToken);
   const [airlineName, setAirlineName] = useState(null);
 
+  // fetching the flight airline name , because the api dosn't send it. The api only provides the airline code
+  // I am using an another api endpoint to fetch the airline name by passing the airline code
   useEffect(() => {
     const fetchAirline = async () => {
       try {

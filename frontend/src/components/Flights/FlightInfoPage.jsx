@@ -17,6 +17,9 @@ export default function FlightInfoPage() {
   const [loading, setLoading] = useState(false);
   const [airLineName, setAirlineName] = useState('');
 
+
+  // fetching the specific flight detail by passing the flight id , which we get from the route , using useParam
+  // then we match the flight id with the fetched flights , and the one which matches the id, we show it here 
   useEffect(() => {
     const flightDetails = async () => {
       setLoading(true);

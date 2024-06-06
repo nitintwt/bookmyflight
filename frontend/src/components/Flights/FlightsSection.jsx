@@ -45,10 +45,10 @@ function FlightSection() {
             //console.log(response.data.data[0]?.iataCode)
             setAirportCode(response.data.data[0]?.iataCode);
           } catch (error) {
-            if (error?.response?.statusText =='Unauthorized') {
+            if (error?.response?.statusText =='Unauthorized') {   // if the access token got expired , we will re-generate the access token
               try {
                 const token = await generateAccessToken();
-                //console.log('Token generated');
+                console.log('Token generated');
                 dispatch(assignAccessToken(token?.data?.access_token));
               } catch (tokenError) {
                 toast.error('Failed to refresh access token');
@@ -74,11 +74,11 @@ function FlightSection() {
   
   const handleSearch = useCallback(async () => {
     setIsLoading(true);
-    dispatch(setFlightData({departureAirport,arrivalAirport,numberOfPassengers,departureDate}));
+    dispatch(setFlightData({departureAirport,arrivalAirport,numberOfPassengers,departureDate}));  // we are sending the flight input data to the global state , redux state
 
     try {
       const data = await fetchFlightDetails({
-        departureAirport: flightData?.departureAirport,
+        departureAirport: flightData?.departureAirport,   // we are fetching the flights by sending the data from the global state ( redux state)
         arrivalAirport: flightData?.arrivalAirport,
         departureDate: flightData?.departureDate,
         numberOfPassengers: flightData?.numberOfPassengers,
