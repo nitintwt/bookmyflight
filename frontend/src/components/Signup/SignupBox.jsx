@@ -12,7 +12,7 @@ export default function SignupBox() {
 
   const handleSubmit = async () => {
     try {
-      const registeredUser = await axios.post('/api/v1/users/register', {
+      const registeredUser = await axios.post('https://bookmyflight-lckq.onrender.com/api/v1/users/register', {
         name: name,
         email: email,
         password: password,
