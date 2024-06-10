@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Toaster, toast } from 'sonner';
 import axios from 'axios';
 import { Button, ButtonGroup } from '@nextui-org/button';
+import { useCookies } from 'react-cookie';
 
 
 
@@ -10,6 +11,7 @@ export default function LoginBox() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const [cookies, setCookie] = useCookies();
 
 
 
@@ -19,7 +21,8 @@ export default function LoginBox() {
         email: email,
         password: password,
       });
-      console.log(loginnedUser)
+      //console.log(loginnedUser)
+      setCookie({accessToken: loginnedUser?.data?.accessToken , refreshToken: loginnedUser?.data?.refreshToken})
       toast.success(`${loginnedUser?.data?.message}`);
       setTimeout(() => navigate('/'), 2000);
     } catch (error) {
